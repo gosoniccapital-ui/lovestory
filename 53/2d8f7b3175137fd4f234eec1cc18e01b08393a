@@ -1,0 +1,46 @@
+CONTEXT.md
+  h_c24fe9ea47d35f 130-151
+apps/web/src/app/api/ai/voice-script/route.ts
+  h_c24fe9ea47d35f 1-39
+apps/web/src/app/dashboard/_components/DashboardNav.tsx
+  h_c24fe9ea47d35f 63
+apps/web/src/app/dashboard/check-in/_components/CheckInScannerApp.tsx
+  h_c24fe9ea47d35f 1-888
+apps/web/src/app/dashboard/check-in/page.tsx
+  h_c24fe9ea47d35f 1-66
+apps/web/src/app/dashboard/guests/_components/GuestList.tsx
+  h_c24fe9ea47d35f 50-52,357-376,1160-1175,1256-1355
+apps/web/src/app/i/[slug]/CanvasInvitation.tsx
+  h_c24fe9ea47d35f 13,1752-1768
+apps/web/src/components/AIVoicePlayer.tsx
+  h_c24fe9ea47d35f 1-511
+apps/web/src/lib/__tests__/ai-voice-script.test.ts
+  h_c24fe9ea47d35f 1-31
+apps/web/src/lib/__tests__/guest-checkin.test.ts
+  h_c24fe9ea47d35f 1-70
+apps/web/src/lib/__tests__/music-presets.test.ts
+  h_c24fe9ea47d35f 67,77
+apps/web/src/lib/__tests__/template-presets.test.ts
+  h_c24fe9ea47d35f 19
+apps/web/src/lib/audio-chime.ts
+  h_c24fe9ea47d35f 1-79
+apps/web/src/server/data/template-presets.ts
+  h_c24fe9ea47d35f 2456-2487,2489-2492,2494-2513,2673,3072-3076,3078-3080
+apps/web/src/server/services/ai-voice-script.ts
+  h_c24fe9ea47d35f 1-123
+apps/web/src/server/trpc/routers/guest.ts
+  h_c24fe9ea47d35f 224-305,307
+docs/HANDOVER_SESSION_2026_08_30_SPRINT56_COMPLETE.md
+  h_c24fe9ea47d35f 1-36
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "532d8f7b3175137fd4f234eec1cc18e01b08393a",
+  "prompts": {},
+  "humans": {
+    "h_c24fe9ea47d35f": {
+      "author": "gosoniccapital-ui <gosoniccapital@gmail.com>"
+    }
+  }
+}
