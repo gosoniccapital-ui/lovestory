@@ -47,6 +47,9 @@ export function GuestList({ projects, appUrl }: GuestListProps) {
   const [batchImporting, setBatchImporting] = useState(false);
   const [bulkCopied, setBulkCopied] = useState(false);
 
+  // Sprint 56: QR Check-in Modal State
+  const [qrModalGuest, setQrModalGuest] = useState<{ id: string; name: string } | null>(null);
+
   // Sprint 55: Guest Seating Management State
   const [tables, setTables] = useState<SeatingTable[]>([]);
   const [newTableName, setNewTableName] = useState("");
@@ -351,6 +354,26 @@ export function GuestList({ projects, appUrl }: GuestListProps) {
         >
           <span>🍽️</span> Sơ đồ bàn tiệc & Chỗ ngồi ({tables.length} bàn)
         </button>
+
+        <a
+          href="/dashboard/check-in"
+          style={{
+            marginLeft: "auto",
+            padding: "10px 18px",
+            borderRadius: 10,
+            background: "linear-gradient(135deg, #4f46e5, #7c3aed)",
+            color: "#ffffff",
+            fontSize: 13,
+            fontWeight: 700,
+            textDecoration: "none",
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            boxShadow: "0 4px 12px rgba(79,70,229,0.3)",
+          }}
+        >
+          <span>📱</span> Mở App Check-in Lễ Tân
+        </a>
       </div>
 
       {/* ═══════ SEATING CHART VIEW (Sprint 55) ═══════ */}
@@ -1135,6 +1158,22 @@ export function GuestList({ projects, appUrl }: GuestListProps) {
                             {copied === guest.name ? "✅" : "🔗"}
                           </button>
                           <button
+                            onClick={() => setQrModalGuest({ id: guest.id, name: guest.name })}
+                            title="Xem mã QR Check-in"
+                            style={{
+                              padding: "5px 10px",
+                              borderRadius: 6,
+                              border: "1px solid #e0e7ff",
+                              background: "#eef2ff",
+                              color: "#4f46e5",
+                              fontSize: 11,
+                              fontWeight: 700,
+                              cursor: "pointer",
+                            }}
+                          >
+                            🎟️ QR
+                          </button>
+                          <button
                             onClick={() => shareZalo(guest.name)}
                             title="Gửi Zalo"
                             style={{
@@ -1213,6 +1252,106 @@ export function GuestList({ projects, appUrl }: GuestListProps) {
       )}
     </>
   )}
+
+      {/* ── QR Check-in Modal ── */}
+      {qrModalGuest && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.6)",
+            backdropFilter: "blur(4px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+            padding: 20,
+          }}
+          onClick={() => setQrModalGuest(null)}
+        >
+          <div
+            style={{
+              background: "#fff",
+              borderRadius: 24,
+              padding: "32px 28px",
+              maxWidth: 380,
+              width: "100%",
+              textAlign: "center",
+              boxShadow: "0 20px 40px rgba(0,0,0,0.25)",
+              animation: "fadeIn 0.2s ease",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <span style={{ fontSize: 36, display: "block", marginBottom: 8 }}>🎟️</span>
+            <h3 style={{ fontSize: 18, fontWeight: 800, color: "#1e1b4b", margin: "0 0 4px" }}>
+              Mã QR Check-in Lễ Tân
+            </h3>
+            <p style={{ fontSize: 13, color: "#6b7280", margin: "0 0 20px" }}>
+              Dành riêng cho khách mời: <strong style={{ color: "#4f46e5" }}>{qrModalGuest.name}</strong>
+            </p>
+
+            <div
+              style={{
+                display: "inline-block",
+                padding: 16,
+                background: "#f8fafc",
+                borderRadius: 16,
+                border: "2px dashed #cbd5e1",
+                marginBottom: 20,
+              }}
+            >
+              {/* VietQR / QuickChart / Google Chart QR API Generator */}
+              <img
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(
+                  getGuestLink(qrModalGuest.name)
+                )}`}
+                alt="Guest Check-in QR"
+                style={{ width: 180, height: 180, display: "block" }}
+              />
+            </div>
+
+            <p style={{ fontSize: 12, color: "#9ca3af", margin: "0 0 20px" }}>
+              Lễ tân quét mã này bằng Camera tại sảnh tiệc để tự động hiển thị số bàn và đón khách.
+            </p>
+
+            <div style={{ display: "flex", gap: 10 }}>
+              <button
+                onClick={() => {
+                  copyLink(qrModalGuest.name);
+                }}
+                style={{
+                  flex: 1,
+                  padding: "10px 14px",
+                  borderRadius: 10,
+                  background: "#eef2ff",
+                  color: "#4f46e5",
+                  border: "none",
+                  fontWeight: 700,
+                  fontSize: 13,
+                  cursor: "pointer",
+                }}
+              >
+                📋 Sao chép Link
+              </button>
+              <button
+                onClick={() => setQrModalGuest(null)}
+                style={{
+                  padding: "10px 20px",
+                  borderRadius: 10,
+                  background: "#1f2937",
+                  color: "#fff",
+                  border: "none",
+                  fontWeight: 700,
+                  fontSize: 13,
+                  cursor: "pointer",
+                }}
+              >
+                Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── RSVP & Wishes Section ── */}
       <RsvpWishesSection projectId={selectedProjectId} />

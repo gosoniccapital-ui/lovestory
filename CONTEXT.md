@@ -127,6 +127,28 @@
    - `npm run build`: **61/61 routes compiled with 0 errors** (Turbopack + Next.js 16 + React 19).
    - TypeScript & ESLint: **0 errors**.
 
+### ✅ Sprint 56 — Guest QR Check-in App, AI Voice Invitation & CineLove Bespoke 04 & 05 (ĐÃ HOÀN THÀNH 100%)
+1. **Guest QR Check-in App at Reception (`/dashboard/check-in`):**
+   - Camera QR Scanner Realtime (Native `BarcodeDetector` + Stream fallback) tích hợp reticle laser hồng/đỏ sang trọng.
+   - Tra cứu tức thì (Search-as-you-type) theo tên/số điện thoại khách mời, tự động hiển thị số bàn tiệc và phân khu (VIP Sân khấu, Trung tâm,...).
+   - Nút 1-click xác nhận Check-in và phát âm thanh chuông đón khách Web Audio Chime C6-E6-G6-C7 du dương.
+   - Thống kê Realtime: Đã mời, Đã check-in (%), Chưa đến. Nút `🎟️ QR` xem mã QR check-in riêng cho từng khách trong `GuestList.tsx`.
+
+2. **AI Voice Invitation & Audio Narration (`/api/ai/voice-script` & `AIVoicePlayer.tsx`):**
+   - Tự động tạo kịch bản dẫn thiệp cưới truyền cảm với Google Gemini 2.5 Flash (3 phong cách: Lãng mạn, Trang trọng, Trẻ trung).
+   - Trình đọc Web Speech Synthesis tiếng Việt mượt mà (`vi-VN`) kết hợp Waveform Audio Visualizer 28-bars nhảy theo nhịp điệu giọng đọc.
+   - Widget `voice-narration` tích hợp hoàn hảo trên trang live thiệp cưới `CanvasInvitation.tsx`.
+
+3. **CineLove Premium Bespoke 04 & 05 Templates:**
+   - `thiep-cuoi-4`: CineLove Bespoke 04 — *Vintage Film & Nostalgic Romance* (Sepia ấm, polaroid tilt frame, tem bưu chính retro, font Serif hoài niệm, nhạc `m37`).
+   - `thiep-cuoi-5`: CineLove Bespoke 05 — *Minimalist Korean Gold & Gentle Chic* (Tone kem sữa ấm + viền vàng Gold Champagne, arch window sang trọng, layout Seoul 2026, nhạc `m28`).
+   - Đăng ký vào `TEMPLATE_UNIQUE_PRESETS` và `TEMPLATE_DEFAULT_MUSIC`.
+
+4. **Testing & Verification Suite:**
+   - Vitest Unit Tests: **53/53 passed** (100%).
+   - TypeScript `tsc --noEmit`: **0 errors**.
+   - Next.js 16 Turbopack Production Build: **63/63 routes compiled with 0 errors**.
+
 ---
 
 ## 🤖 3. Đánh Giá Công Cụ & AI Agent Tools (GitNexus vs CodeGraph)

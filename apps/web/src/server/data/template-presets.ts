@@ -2453,23 +2453,64 @@ function makeThiepCuoi2(): TemplateElement[] {
   ];
 }
 
-/** 14. Thiệp Cưới 5 — Romantic Parisian Garden (Top 14 • 9.2k views) */
-function makeThiepCuoi5(): TemplateElement[] {
-  const blush = "#db2777";
-  const dark = "#831843";
-  const soft = "#fbcfe8";
+/** 14. Thiệp Cưới 4 — CineLove Bespoke 04: Vintage Film & Nostalgic Romance (Top Bespoke • Sepia Retro) */
+function makeThiepCuoi4(): TemplateElement[] {
+  const sepia = "#78350f";
+  const warmGold = "#b45309";
+  const cream = "#fef3c7";
+  const darkCharcoal = "#292524";
   return [
-    txt("txt-header", 20, 25, 350, 25, "L'AMOUR TOUJOURS", { size: 13, font: "'Cinzel', serif", color: blush, weight: "bold" }),
-    txt("txt-names", 10, 60, 370, 100, "Tuấn Minh\n& Mai Lan", { size: 40, font: "'Playfair Display', serif", italic: true, color: dark, lineHeight: 1.15 }),
-    img("img-main", 30, 175, 330, 400, { radius: 16, borderWidth: 2, borderColor: soft, src: "https://images.unsplash.com/photo-1529634597503-139d3726fed5?w=800&fit=crop" }),
-    txt("txt-date", 20, 595, 350, 30, "28 · 05 · 2026", { size: 20, font: "'Cormorant Garamond', serif", weight: "bold", color: blush }),
-    txt("txt-invite", 20, 635, 350, 50, "Trân trọng kính mời quý khách tham dự tiệc cưới phong cách Pháp ngọt ngào", { size: 13, font: "'Inter', sans-serif", color: dark, lineHeight: 1.6 }),
-    wgt("plugin-countdown", "countdown", 20, 700, 350, 110, { targetDate: "2026-05-28", label: "COUNTDOWN", accentColor: blush }),
-    wgt("plugin-calendar", "calendar", 20, 830, 350, 240, { selectedDate: "2026-05-28", accentColor: blush }),
-    wgt("plugin-map", "map", 20, 1090, 350, 200, { address: "Le Jardin, 31 Thái Văn Lung, Bến Nghé, Q.1, TP.HCM", label: "Trung tâm Tiệc cưới Le Jardin" }),
-    wgt("plugin-rsvp", "rsvp", 20, 1310, 350, 280, { title: "Xác Nhận Tham Dự", submitLabel: "Xác Nhận", accentColor: blush }),
-    wgt("plugin-qrbox", "qrbox", 20, 1610, 350, 280, { groomName: "TUAN MINH", groomBank: "VCB", groomAccount: "5555", brideName: "MAI LAN", brideBank: "MBBANK", brideAccount: "6666" }),
-    txt("txt-footer", 20, 1910, 350, 35, "Merci beaucoup pour votre présence 💕", { size: 16, font: "'Playfair Display', serif", italic: true, color: blush }),
+    txt("txt-header", 20, 20, 350, 25, "MEMOIR NOSTALGIE • 1990s FILM EDITION", { size: 11, font: "'Courier Prime', monospace", color: warmGold, weight: "bold" }),
+    txt("txt-names", 10, 50, 370, 95, "Tuấn Minh\n& Mai Lan", { size: 42, font: "'Playfair Display', serif", italic: true, color: sepia, lineHeight: 1.12 }),
+    img("img-main", 25, 155, 340, 380, { radius: 8, borderWidth: 6, borderColor: "#ffffff", rotation: -1.5, src: "https://images.unsplash.com/photo-1519741497674-611481863552?w=800&fit=crop" }),
+    txt("txt-postage", 270, 510, 90, 40, "AIR MAIL\nPOSTAGE", { size: 10, font: "'Courier Prime', monospace", color: warmGold, weight: "bold" }),
+    txt("txt-date", 20, 560, 350, 30, "✦ 28 · 05 · 2026 ✦", { size: 18, font: "'Lora', serif", weight: "bold", color: sepia }),
+    txt("txt-invite", 20, 598, 350, 45, "Thước phim thời gian lưu giữ từng khoảnh khắc ngọt ngào nhất của đôi ta", { size: 13, font: "'Lora', serif", italic: true, color: darkCharcoal, lineHeight: 1.5 }),
+    wgt("plugin-voice", "voice-narration", 20, 655, 350, 160, {
+      title: "🎙️ Lời Dẫn Thiệp Cưới Vintage",
+      groomName: "Tuấn Minh",
+      brideName: "Mai Lan",
+      weddingDate: "28/05/2026",
+      venue: "Trung Tâm Tiệc Cưới Vintage Hall",
+      accentColor: warmGold,
+      script: "Kính chào quý vị khách quý. Đây là cuốn phim tình yêu ghi dấu ngày chung đôi của Tuấn Minh và Mai Lan. Trân trọng kính mời quý khách tới nâng ly chúc phúc!",
+    }),
+    wgt("plugin-countdown", "countdown", 20, 830, 350, 110, { targetDate: "2026-05-28", label: "COUNTDOWN TO OUR DAY", accentColor: warmGold }),
+    wgt("plugin-calendar", "calendar", 20, 955, 350, 240, { selectedDate: "2026-05-28", accentColor: warmGold }),
+    wgt("plugin-map", "map", 20, 1210, 350, 200, { address: "The Myst Dong Khoi, 6-8 Hồ Huấn Nghiệp, Q.1, TP.HCM", label: "The Myst Dong Khoi Hotel" }),
+    wgt("plugin-rsvp", "rsvp", 20, 1425, 350, 280, { title: "Xác Nhận Tham Dự", submitLabel: "Gửi Lời Chúc", accentColor: sepia }),
+    wgt("plugin-qrbox", "qrbox", 20, 1720, 350, 280, { groomName: "TUAN MINH", groomBank: "VCB", groomAccount: "199044", brideName: "MAI LAN", brideBank: "MBBANK", brideAccount: "199088" }),
+    txt("txt-footer", 20, 2015, 350, 35, "Love is a timeless vintage story 🎞️", { size: 15, font: "'Lora', serif", italic: true, color: warmGold }),
+  ];
+}
+
+/** 15. Thiệp Cưới 5 — CineLove Bespoke 05: Minimalist Korean Gold & Gentle Chic (Top Bespoke • Seoul Chic) */
+function makeThiepCuoi5(): TemplateElement[] {
+  const gold = "#d4af37";
+  const darkNavy = "#1e293b";
+  const softBg = "#fdfbf7";
+  const accentGray = "#64748b";
+  return [
+    txt("txt-header", 20, 25, 350, 25, "THE WEDDING DAY • 우리가 함께하는 날", { size: 11, font: "'Inter', sans-serif", color: gold, weight: "bold" }),
+    txt("txt-names", 10, 55, 370, 90, "TUẤN MINH & MAI LAN", { size: 28, font: "'Cinzel', serif", weight: "bold", color: darkNavy, lineHeight: 1.2 }),
+    img("img-main", 35, 155, 320, 420, { radius: 160, borderWidth: 3, borderColor: gold, src: "https://images.unsplash.com/photo-1529634597503-139d3726fed5?w=800&fit=crop" }),
+    txt("txt-date", 20, 590, 350, 30, "MAY 28, 2026 | 18:00 PM", { size: 16, font: "'Cinzel', serif", weight: "bold", color: gold }),
+    txt("txt-invite", 20, 628, 350, 45, "Trân trọng kính mời quý khách tham dự lễ thành hôn phong cách Hàn Quốc tối giản", { size: 13, font: "'Inter', sans-serif", color: accentGray, lineHeight: 1.5 }),
+    wgt("plugin-voice", "voice-narration", 20, 685, 350, 160, {
+      title: "🎙️ Lời Dẫn Thiệp Cưới Minimalist Gold",
+      groomName: "Tuấn Minh",
+      brideName: "Mai Lan",
+      weddingDate: "28/05/2026",
+      venue: "Grand Ballroom Seoul Centre",
+      accentColor: gold,
+      script: "Kính chào quý vị khách quý. Tình yêu là khi hai tâm hồn tìm thấy sự bình yên bên nhau. Tuấn Minh và Mai Lan trân trọng kính mời quý vị đến chung vui trong ngày hạnh phúc.",
+    }),
+    wgt("plugin-countdown", "countdown", 20, 860, 350, 110, { targetDate: "2026-05-28", label: "COUNTDOWN", accentColor: gold }),
+    wgt("plugin-calendar", "calendar", 20, 985, 350, 240, { selectedDate: "2026-05-28", accentColor: gold }),
+    wgt("plugin-map", "map", 20, 1240, 350, 200, { address: "Park Hyatt Saigon, 2 Lam Son Square, Q.1, TP.HCM", label: "Park Hyatt Saigon Hotel" }),
+    wgt("plugin-rsvp", "rsvp", 20, 1455, 350, 280, { title: "Xác Nhận Tham Dự", submitLabel: "Xác Nhận", accentColor: darkNavy }),
+    wgt("plugin-qrbox", "qrbox", 20, 1750, 350, 280, { groomName: "TUAN MINH", groomBank: "TCB", groomAccount: "88889999", brideName: "MAI LAN", brideBank: "VCB", brideAccount: "99998888" }),
+    txt("txt-footer", 20, 2045, 350, 35, "Warmly thank you for joining us 🕊️", { size: 15, font: "'Cinzel', serif", color: gold }),
   ];
 }
 
@@ -2629,7 +2670,7 @@ export const TEMPLATE_UNIQUE_PRESETS: Record<string, TemplateElement[]> = {
   "thiep-cuoi-7": makeClassicPreset("#111827", "#374151", "#d1d5db"),
   "thiep-cuoi-31": makeTraditionalPreset("#b91c1c", "#7f1d1d", "#f59e0b"),
   "thiep-cuoi-30": makeTraditionalPreset("#dc2626", "#881337", "#fbbf24"),
-  "thiep-cuoi-4": makeClassicPreset("#18181b", "#52525b", "#d4d4d8"),
+  "thiep-cuoi-4": makeThiepCuoi4(),
   "thiep-cuoi-14": makeRomanticPreset(
     "#fecdd3",
     "#831843",
@@ -3028,10 +3069,15 @@ export const TEMPLATE_DEFAULT_MUSIC: Record<string, TemplateMusicAssignment> = {
     musicName: "A Thousand Years",
     musicUrl: "https://assets.7app.online/audio/wedding-tracks/m8.mp3",
   },
+  "thiep-cuoi-4": {
+    musicId: "m37",
+    musicName: "Wedding March — Mendelssohn",
+    musicUrl: "https://assets.7app.online/audio/wedding-tracks/m37.mp3",
+  },
   "thiep-cuoi-5": {
-    musicId: "m34",
-    musicName: "Clair de Lune — Debussy",
-    musicUrl: "https://assets.7app.online/audio/wedding-tracks/m34.mp3",
+    musicId: "m28",
+    musicName: "Korean Wedding Ballad",
+    musicUrl: "https://assets.7app.online/audio/wedding-tracks/m28.mp3",
   },
   "thiep-cuoi-23": {
     musicId: "m26",

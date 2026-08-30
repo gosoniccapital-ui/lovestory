@@ -16,6 +16,7 @@ const TOP_20_SLUGS = [
   "thiep-cuoi-19",
   "thiep-cuoi-tone-xanh",
   "thiep-cuoi-2",
+  "thiep-cuoi-4",
   "thiep-cuoi-5",
   "thiep-cuoi-23",
   "thiep-cuoi-8",

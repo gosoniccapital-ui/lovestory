@@ -60,6 +60,7 @@ export function DashboardNav() {
 
             <NavGroup label="KHÁCH MỜI">
                 <NavItem href="/dashboard/guests" icon="👥" label="Danh sách khách" />
+                <NavItem href="/dashboard/check-in" icon="📱" label="Check-in Lễ tân" />
                 <NavItem href="/dashboard/wishes" icon="💬" label="Lời chúc" />
                 <NavItem href="/dashboard/rsvp" icon="✅" label="Xác nhận tham dự" />
                 <NavItem href="/dashboard/gifts" icon="🎁" label="Quà tặng" />

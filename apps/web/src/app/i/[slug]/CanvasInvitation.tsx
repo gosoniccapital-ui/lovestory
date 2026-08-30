@@ -10,6 +10,7 @@
 import { useMemo, useState, useRef, useCallback, useEffect } from "react";
 import DOMPurify from "isomorphic-dompurify";
 import { VIETNAM_BANKS, buildVietQrUrl } from "@/app/editor/[id]/components/canvas-engine/vietnam-banks";
+import { AIVoicePlayer } from "@/components/AIVoicePlayer";
 
 /* ═══════ Security helpers ═══════ */
 
@@ -1746,6 +1747,23 @@ function RenderElement({
 
     if (wt === "album") {
       return <PublishedAlbumWidget props={p} wrapStyle={wrapStyle} />;
+    }
+
+    if (wt === "voice-narration" || wt === "voice" || wt === "ai-voice") {
+      return (
+        <div style={wrapStyle}>
+          <AIVoicePlayer
+            initialScript={p.script as string}
+            groomName={(p.groomName as string) || "Chú Rể"}
+            brideName={(p.brideName as string) || "Cô Dâu"}
+            weddingDate={(p.weddingDate as string) || "2026-10-20"}
+            venue={(p.venue as string) || "Sảnh Tiệc Cưới"}
+            accentColor={(p.accentColor as string) || "#d97706"}
+            title={(p.title as string) || "🎙️ Lời Dẫn Thiệp Cưới AI"}
+            editable={false}
+          />
+        </div>
+      );
     }
 
     if (wt === "formbuilder") {
