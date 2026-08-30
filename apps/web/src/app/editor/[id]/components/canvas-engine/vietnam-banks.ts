@@ -18,6 +18,22 @@ export const VIETNAM_BANKS: VietBank[] = [
 ];
 
 /**
+ * Remove Vietnamese accents and special characters for standard bank transfer notes.
+ */
+export function cleanBankingNote(text: string, maxLen = 50): string {
+  if (!text) return "";
+  const cleaned = text
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "D")
+    .replace(/[^a-zA-Z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  return cleaned.slice(0, maxLen);
+}
+
+/**
  * Build VietQR image URL.
  * Format: https://img.vietqr.io/image/{bankBin}-{accountNumber}-compact.jpg
  */
@@ -27,10 +43,32 @@ export function buildVietQrUrl(
   amount?: string,
   note?: string,
 ): string {
-  const base = `https://img.vietqr.io/image/${bankBin}-${encodeURIComponent(accountNumber)}-compact.jpg`;
+  const base = `https://img.vietqr.io/image/${bankBin}-${encodeURIComponent(accountNumber.replace(/\s/g, ""))}-compact.jpg`;
   const params = new URLSearchParams();
-  if (amount) params.set("amount", amount);
-  if (note) params.set("addInfo", note);
+  if (amount && parseInt(amount, 10) > 0) {
+    params.set("amount", amount.replace(/\D/g, ""));
+  }
+  if (note) {
+    params.set("addInfo", cleanBankingNote(note));
+  }
   const qs = params.toString();
   return qs ? `${base}?${qs}` : base;
+}
+
+/**
+ * Build Dynamic VietQR note from guest name and custom wish.
+ */
+export function formatWeddingTransferNote(
+  guestName?: string,
+  customWish?: string,
+  prefix = "Mung cuoi",
+): string {
+  const parts: string[] = [prefix];
+  if (guestName?.trim()) {
+    parts.push(guestName.trim());
+  }
+  if (customWish?.trim()) {
+    parts.push(customWish.trim());
+  }
+  return cleanBankingNote(parts.join(" - "), 50);
 }

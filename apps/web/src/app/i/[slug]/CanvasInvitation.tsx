@@ -9,6 +9,7 @@
 
 import { useMemo, useState, useRef, useCallback, useEffect } from "react";
 import DOMPurify from "isomorphic-dompurify";
+import { VIETNAM_BANKS, buildVietQrUrl } from "@/app/editor/[id]/components/canvas-engine/vietnam-banks";
 
 /* ═══════ Security helpers ═══════ */
 
@@ -708,6 +709,615 @@ function splitIntoSections(
   return sections;
 }
 
+/* ═══════ Published Album & VietQR Interactive Widgets ═══════ */
+
+interface PublishedPhotoItem {
+  url: string;
+  caption?: string;
+  date?: string;
+}
+
+function PublishedQrBoxWidget({
+  props: p,
+  wrapStyle,
+}: {
+  props: Record<string, unknown>;
+  wrapStyle: React.CSSProperties;
+}) {
+  const bankBin = (p.bankBin || "970422") as string;
+  const bankName = (p.bankName || "") as string;
+  const accountNumber = (p.accountNumber || "0123456789") as string;
+  const accountName = (p.accountName || "NGUYEN VAN A") as string;
+  const defaultAmount = (p.amount || "") as string;
+  const defaultNote = (p.message || p.note || "Mung cuoi") as string;
+  const accentColor = (p.accentColor || "#e11d48") as string;
+
+  const [customGuest, setCustomGuest] = useState("");
+  const [customWish, setCustomWish] = useState("");
+  const [selectedAmount, setSelectedAmount] = useState(defaultAmount);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+
+  const quickAmounts = [
+    { label: "200k", value: "200000" },
+    { label: "500k", value: "500000" },
+    { label: "1 Triệu", value: "1000000" },
+    { label: "2 Triệu", value: "2000000" },
+  ];
+
+  const dynamicNote = useMemo(() => {
+    const parts: string[] = [defaultNote];
+    if (customGuest.trim()) parts.push(customGuest.trim());
+    if (customWish.trim()) parts.push(customWish.trim());
+    return parts.join(" - ");
+  }, [defaultNote, customGuest, customWish]);
+
+  const qrUrl = buildVietQrUrl(bankBin, accountNumber, selectedAmount, dynamicNote);
+
+  const displayBankName =
+    bankName ||
+    VIETNAM_BANKS.find((b) => b.bin === bankBin)?.name ||
+    "Ngân hàng";
+
+  const handleCopy = (text: string, field: string) => {
+    if (!text) return;
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+      setCopiedField(field);
+      setTimeout(() => setCopiedField(null), 2000);
+    }
+  };
+
+  return (
+    <div
+      style={{
+        ...wrapStyle,
+        background: "linear-gradient(180deg, #ffffff 0%, #fffbf8 100%)",
+        borderRadius: 16,
+        padding: 16,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.08)",
+        border: "1px solid rgba(226, 232, 240, 0.8)",
+        boxSizing: "border-box",
+        overflow: "hidden",
+      }}
+    >
+      <div
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 6,
+          padding: "4px 12px",
+          borderRadius: 99,
+          background: "rgba(225, 29, 72, 0.08)",
+          color: accentColor,
+          fontSize: 11,
+          fontWeight: 700,
+          marginBottom: 8,
+          textTransform: "uppercase",
+        }}
+      >
+        <span>🎁</span> Mừng Cưới Chúc Phúc
+      </div>
+
+      <div style={{ fontSize: 14, fontWeight: 700, color: "#1e293b", marginBottom: 2 }}>
+        {displayBankName}
+      </div>
+
+      {/* QR image */}
+      <div style={{ margin: "6px auto", textAlign: "center" }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={qrUrl}
+          alt="QR VietQR"
+          style={{
+            width: 140,
+            height: 140,
+            borderRadius: 12,
+            display: "block",
+            margin: "0 auto",
+            border: "1px solid #f1f5f9",
+            boxShadow: "0 4px 10px rgba(0,0,0,0.05)",
+          }}
+        />
+        <div style={{ fontSize: 9, color: "#64748b", marginTop: 4 }}>
+          ⚡ Quét qua mọi ứng dụng Banking / MoMo
+        </div>
+      </div>
+
+      {/* Account Info Box */}
+      <div
+        style={{
+          width: "100%",
+          background: "#f8fafc",
+          borderRadius: 10,
+          padding: "8px 12px",
+          margin: "6px 0",
+          border: "1px solid #e2e8f0",
+          boxSizing: "border-box",
+        }}
+      >
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, marginBottom: 2 }}>
+          <span style={{ color: "#64748b" }}>Chủ TK:</span>
+          <span style={{ fontWeight: 700, color: "#0f172a" }}>{accountName}</span>
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div>
+            <span style={{ fontSize: 10, color: "#64748b" }}>STK: </span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: accentColor, fontFamily: "monospace" }}>
+              {accountNumber}
+            </span>
+          </div>
+          <button
+            onClick={() => handleCopy(accountNumber, "acc")}
+            style={{
+              background: copiedField === "acc" ? "#10b981" : "#ffffff",
+              color: copiedField === "acc" ? "#fff" : "#475569",
+              border: "1px solid #cbd5e1",
+              borderRadius: 6,
+              padding: "2px 6px",
+              fontSize: 10,
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            {copiedField === "acc" ? "✓ Đã chép" : "Sao chép"}
+          </button>
+        </div>
+      </div>
+
+      {/* Quick Amount Chips */}
+      <div style={{ width: "100%", marginTop: 4 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 4 }}>
+          {quickAmounts.map((q) => (
+            <button
+              key={q.value}
+              onClick={() => setSelectedAmount(selectedAmount === q.value ? "" : q.value)}
+              style={{
+                padding: "4px 2px",
+                borderRadius: 6,
+                border: `1px solid ${selectedAmount === q.value ? accentColor : "#e2e8f0"}`,
+                background: selectedAmount === q.value ? "rgba(225, 29, 72, 0.08)" : "#fff",
+                color: selectedAmount === q.value ? accentColor : "#475569",
+                fontSize: 10,
+                fontWeight: selectedAmount === q.value ? 700 : 500,
+                cursor: "pointer",
+              }}
+            >
+              {q.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Guest Name & Wish Inputs */}
+      <div style={{ width: "100%", marginTop: 6, display: "flex", flexDirection: "column", gap: 4 }}>
+        <input
+          type="text"
+          placeholder="Tên bạn (ví dụ: Bạn Lan)"
+          value={customGuest}
+          onChange={(e) => setCustomGuest(e.target.value)}
+          style={{
+            width: "100%",
+            padding: "6px 8px",
+            borderRadius: 6,
+            border: "1px solid #cbd5e1",
+            fontSize: 11,
+            outline: "none",
+            boxSizing: "border-box",
+          }}
+        />
+        <input
+          type="text"
+          placeholder="Lời chúc (ví dụ: Trăm năm hạnh phúc)"
+          value={customWish}
+          onChange={(e) => setCustomWish(e.target.value)}
+          style={{
+            width: "100%",
+            padding: "6px 8px",
+            borderRadius: 6,
+            border: "1px solid #cbd5e1",
+            fontSize: 11,
+            outline: "none",
+            boxSizing: "border-box",
+          }}
+        />
+      </div>
+
+      {/* Copy Note Bar */}
+      <div
+        style={{
+          width: "100%",
+          marginTop: 6,
+          background: "#fff1f2",
+          borderRadius: 6,
+          padding: "6px 8px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          boxSizing: "border-box",
+          border: "1px dashed #fecdd3",
+        }}
+      >
+        <div style={{ fontSize: 10, color: "#9f1239", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "70%" }}>
+          ND: <strong>{dynamicNote}</strong>
+        </div>
+        <button
+          onClick={() => handleCopy(dynamicNote, "note")}
+          style={{
+            background: copiedField === "note" ? "#10b981" : "#e11d48",
+            color: "#fff",
+            border: "none",
+            borderRadius: 4,
+            padding: "2px 6px",
+            fontSize: 9,
+            fontWeight: 700,
+            cursor: "pointer",
+          }}
+        >
+          {copiedField === "note" ? "✓ Đã chép" : "Chép ND"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function PublishedAlbumWidget({
+  props: p,
+  wrapStyle,
+}: {
+  props: Record<string, unknown>;
+  wrapStyle: React.CSSProperties;
+}) {
+  const layout = (p.layout || "grid") as "grid" | "carousel" | "parallax_3d";
+  const columns = Number(p.columns) || 2;
+  const gap = Number(p.gap) || 8;
+  const borderRadius = Number(p.borderRadius) || 12;
+  const accentColor = (p.accentColor || "#e11d48") as string;
+  const title = (p.title || p.label || "Album ảnh cưới") as string;
+  const subtitle = (p.subtitle || "") as string;
+
+  const photos: PublishedPhotoItem[] = useMemo(() => {
+    if (Array.isArray(p.photos) && p.photos.length > 0) {
+      return p.photos.map((item, idx) => {
+        if (typeof item === "string") return { url: item, caption: `Khoảnh khắc ${idx + 1}` };
+        if (item && typeof item === "object") {
+          return {
+            url: String((item as Record<string, unknown>).url || ""),
+            caption: String((item as Record<string, unknown>).caption || ""),
+            date: String((item as Record<string, unknown>).date || ""),
+          };
+        }
+        return { url: "", caption: "" };
+      });
+    }
+    if (typeof p.albumImages === "string" && p.albumImages.trim().length > 0) {
+      return p.albumImages
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .map((url, idx) => ({ url, caption: `Khoảnh khắc ${idx + 1}` }));
+    }
+    return [
+      { url: "https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80", caption: "Lần đầu gặp gỡ", date: "Mùa thu 2022" },
+      { url: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800&q=80", caption: "Chuyến đi đầu tiên", date: "Đà Lạt 2023" },
+      { url: "https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=800&q=80", caption: "Lời cầu hôn ngọt ngào", date: "Phú Quốc 2024" },
+      { url: "https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=800&q=80", caption: "Chúng mình về chung một nhà", date: "Hôm nay" },
+    ];
+  }, [p.photos, p.albumImages]);
+
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  const nextSlide = () => setActiveIndex((prev) => (prev + 1) % photos.length);
+  const prevSlide = () => setActiveIndex((prev) => (prev - 1 + photos.length) % photos.length);
+
+  return (
+    <div
+      style={{
+        ...wrapStyle,
+        background: "rgba(255, 255, 255, 0.95)",
+        borderRadius: 16,
+        padding: 14,
+        display: "flex",
+        flexDirection: "column",
+        gap: 8,
+        boxShadow: "0 4px 20px rgba(0,0,0,0.06)",
+        overflow: "hidden",
+        boxSizing: "border-box",
+      }}
+    >
+      {(title || subtitle) && (
+        <div style={{ textAlign: "center", marginBottom: 6 }}>
+          {title && (
+            <p style={{ fontSize: 15, fontWeight: 700, color: accentColor, margin: 0, fontFamily: "'Playfair Display', serif" }}>
+              {title}
+            </p>
+          )}
+          {subtitle && (
+            <p style={{ fontSize: 11, color: "#64748b", margin: "2px 0 0", fontStyle: "italic", fontFamily: "'Cormorant Garamond', serif" }}>
+              {subtitle}
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* MODE 1: CAROUSEL */}
+      {layout === "carousel" && (
+        <div style={{ position: "relative", width: "100%", flex: 1, minHeight: 220, borderRadius, overflow: "hidden" }}>
+          <div
+            style={{
+              position: "relative",
+              width: "100%",
+              height: "100%",
+              borderRadius,
+              overflow: "hidden",
+              background: "#000",
+              cursor: "pointer",
+            }}
+            onClick={() => setLightboxIndex(activeIndex)}
+          >
+            {photos[activeIndex]?.url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={photos[activeIndex].url}
+                alt={photos[activeIndex].caption || "Wedding photo"}
+                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+              />
+            ) : (
+              <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "#94a3b8", fontSize: 12 }}>
+                Chưa có ảnh
+              </div>
+            )}
+
+            {/* Story Gradient Overlay & Caption */}
+            <div
+              style={{
+                position: "absolute",
+                bottom: 0,
+                left: 0,
+                right: 0,
+                padding: "24px 12px 10px",
+                background: "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.8) 100%)",
+                color: "#ffffff",
+                textAlign: "left",
+              }}
+            >
+              {photos[activeIndex]?.date && (
+                <div style={{ display: "inline-block", padding: "1px 6px", borderRadius: 4, background: accentColor, fontSize: 9, fontWeight: 700, marginBottom: 2 }}>
+                  {photos[activeIndex].date}
+                </div>
+              )}
+              {photos[activeIndex]?.caption && (
+                <div style={{ fontSize: 12, fontWeight: 600 }}>{photos[activeIndex].caption}</div>
+              )}
+            </div>
+
+            <div style={{ position: "absolute", top: 8, right: 8, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(4px)", color: "#fff", padding: "2px 6px", borderRadius: 99, fontSize: 9 }}>
+              🔍 Chạm phóng to
+            </div>
+          </div>
+
+          {photos.length > 1 && (
+            <>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  prevSlide();
+                }}
+                style={{
+                  position: "absolute",
+                  left: 6,
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  width: 28,
+                  height: 28,
+                  borderRadius: "50%",
+                  background: "rgba(255,255,255,0.85)",
+                  border: "none",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                  fontWeight: 700,
+                  fontSize: 16,
+                }}
+              >
+                ‹
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  nextSlide();
+                }}
+                style={{
+                  position: "absolute",
+                  right: 6,
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  width: 28,
+                  height: 28,
+                  borderRadius: "50%",
+                  background: "rgba(255,255,255,0.85)",
+                  border: "none",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                  fontWeight: 700,
+                  fontSize: 16,
+                }}
+              >
+                ›
+              </button>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* MODE 2: 3D PARALLAX */}
+      {layout === "parallax_3d" && (
+        <div style={{ display: "grid", gridTemplateColumns: `repeat(${columns}, 1fr)`, gap, flex: 1, overflowY: "auto" }}>
+          {photos.map((photo, i) => (
+            <div
+              key={i}
+              onClick={() => setLightboxIndex(i)}
+              style={{
+                position: "relative",
+                borderRadius,
+                overflow: "hidden",
+                aspectRatio: "3/4",
+                background: "#f1f5f9",
+                boxShadow: "0 6px 14px rgba(0,0,0,0.08)",
+                cursor: "pointer",
+                transition: "transform 0.3s ease, box-shadow 0.3s ease",
+              }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={photo.url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+              {photo.caption && (
+                <div style={{ position: "absolute", bottom: 0, insetInline: 0, padding: "12px 6px 6px", background: "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.7) 100%)", color: "#fff", fontSize: 10, fontWeight: 600, textAlign: "center" }}>
+                  {photo.caption}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* MODE 3: GRID */}
+      {layout === "grid" && (
+        <div style={{ display: "grid", gridTemplateColumns: `repeat(${columns}, 1fr)`, gap, flex: 1, overflowY: "auto" }}>
+          {photos.map((photo, i) => (
+            <div
+              key={i}
+              onClick={() => setLightboxIndex(i)}
+              style={{
+                position: "relative",
+                borderRadius,
+                overflow: "hidden",
+                aspectRatio: "1",
+                background: "#f1f5f9",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                cursor: "pointer",
+              }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={photo.url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* LIGHTBOX POPUP */}
+      {lightboxIndex !== null && photos[lightboxIndex] && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 999999,
+            background: "rgba(0,0,0,0.92)",
+            backdropFilter: "blur(10px)",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 16,
+          }}
+          onClick={() => setLightboxIndex(null)}
+        >
+          <button
+            onClick={() => setLightboxIndex(null)}
+            style={{
+              position: "absolute",
+              top: 20,
+              right: 20,
+              background: "rgba(255,255,255,0.2)",
+              color: "#fff",
+              border: "none",
+              borderRadius: "50%",
+              width: 36,
+              height: 36,
+              fontSize: 18,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            ✕
+          </button>
+          <div style={{ maxWidth: "92%", maxHeight: "80vh", display: "flex", flexDirection: "column", alignItems: "center" }} onClick={(e) => e.stopPropagation()}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={photos[lightboxIndex].url}
+              alt=""
+              style={{ maxWidth: "100%", maxHeight: "72vh", objectFit: "contain", borderRadius: 8 }}
+            />
+            {photos[lightboxIndex].caption && (
+              <div style={{ color: "#f8fafc", fontSize: 14, fontWeight: 600, marginTop: 12, textAlign: "center" }}>
+                {photos[lightboxIndex].caption}
+                {photos[lightboxIndex].date && (
+                  <span style={{ fontSize: 11, color: "#94a3b8", display: "block", marginTop: 2 }}>{photos[lightboxIndex].date}</span>
+                )}
+              </div>
+            )}
+          </div>
+          {photos.length > 1 && (
+            <>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setLightboxIndex((prev) => (prev! - 1 + photos.length) % photos.length);
+                }}
+                style={{
+                  position: "absolute",
+                  left: 16,
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  background: "rgba(255,255,255,0.2)",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "50%",
+                  width: 40,
+                  height: 40,
+                  fontSize: 22,
+                  cursor: "pointer",
+                }}
+              >
+                ‹
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setLightboxIndex((prev) => (prev! + 1) % photos.length);
+                }}
+                style={{
+                  position: "absolute",
+                  right: 16,
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  background: "rgba(255,255,255,0.2)",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "50%",
+                  width: 40,
+                  height: 40,
+                  fontSize: 22,
+                  cursor: "pointer",
+                }}
+              >
+                ›
+              </button>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ═══════ Element Renderer ═══════ */
 
 function RenderElement({
@@ -969,107 +1579,8 @@ function RenderElement({
       );
     }
 
-    if (wt === "gift") {
-      return (
-        <div
-          style={{
-            ...wrapStyle,
-            background: "linear-gradient(135deg, #fef3c7, #fefde8)",
-            borderRadius: 16,
-            padding: 16,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 8,
-            border: "1px solid #fcd34d",
-          }}
-        >
-          <span style={{ fontSize: 28 }}>💰</span>
-          <p
-            style={{
-              fontSize: 14,
-              fontWeight: 700,
-              color: "#92400e",
-              margin: 0,
-            }}
-          >
-            {(p.label as string) || "Phong bì mừng cưới"}
-          </p>
-          {Boolean(p.bankName) && (
-            <div
-              style={{
-                background: "#fff",
-                borderRadius: 10,
-                padding: "8px 16px",
-                textAlign: "center",
-                width: "100%",
-                boxSizing: "border-box",
-              }}
-            >
-              <p style={{ fontSize: 11, color: "#6b7280", margin: 0 }}>
-                {String(p.bankName)}
-              </p>
-              <p
-                style={{
-                  fontSize: 14,
-                  fontWeight: 700,
-                  color: "#374151",
-                  margin: "2px 0",
-                  letterSpacing: 1,
-                }}
-              >
-                {(p.accountNumber as string) || "0123456789"}
-              </p>
-              <p style={{ fontSize: 11, color: "#9ca3af", margin: 0 }}>
-                {(p.accountName as string) || ""}
-              </p>
-            </div>
-          )}
-        </div>
-      );
-    }
-
-    if (wt === "qr") {
-      const qrUrl = `https://img.vietqr.io/image/${(p.bankBin || "970422") as string}-${(p.accountNumber || "0123456789") as string}-qr_only.png?amount=${(p.amount || "") as string}&addInfo=${encodeURIComponent((p.message || "") as string)}`;
-      return (
-        <div
-          style={{
-            ...wrapStyle,
-            background: "#fff",
-            borderRadius: 16,
-            padding: 14,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 8,
-            boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
-          }}
-        >
-          <p
-            style={{
-              fontSize: 12,
-              fontWeight: 600,
-              color: "#374151",
-              margin: 0,
-            }}
-          >
-            {(p.label as string) || "Quét mã QR"}
-          </p>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={qrUrl}
-            alt="QR"
-            style={{ width: 120, height: 120, borderRadius: 8 }}
-          />
-          {Boolean(p.bankName) && (
-            <p style={{ fontSize: 10, color: "#6b7280", margin: 0 }}>
-              {String(p.bankName)} — {String(p.accountName || "")}
-            </p>
-          )}
-        </div>
-      );
+    if (wt === "gift" || wt === "qr" || wt === "qrbox") {
+      return <PublishedQrBoxWidget props={p} wrapStyle={wrapStyle} />;
     }
 
     if (wt === "calendar") {
@@ -1234,85 +1745,7 @@ function RenderElement({
     }
 
     if (wt === "album") {
-      const images = ((p.albumImages as string) || "")
-        .split(",")
-        .map((s: string) => s.trim())
-        .filter(Boolean);
-      return (
-        <div
-          style={{
-            ...wrapStyle,
-            background: "#fff",
-            borderRadius: 16,
-            padding: 14,
-            display: "flex",
-            flexDirection: "column",
-            gap: 8,
-            boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
-            overflow: "hidden",
-          }}
-        >
-          <p
-            style={{
-              fontSize: 12,
-              fontWeight: 700,
-              color: "#374151",
-              margin: 0,
-              textAlign: "center",
-            }}
-          >
-            {(p.label as string) || "Album ảnh cưới"}
-          </p>
-          {images.length > 0 ? (
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: 4,
-                flex: 1,
-                overflow: "hidden",
-              }}
-            >
-              {images.map((src: string, i: number) => (
-                <div
-                  key={i}
-                  style={{
-                    aspectRatio: "1",
-                    borderRadius: 8,
-                    overflow: "hidden",
-                    background: "#f3f4f6",
-                  }}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={safeSrc(src)}
-                    alt={`Photo ${i + 1}`}
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                      display: "block",
-                    }}
-                  />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div
-              style={{
-                flex: 1,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "#9ca3af",
-                fontSize: 11,
-              }}
-            >
-              Chưa có ảnh
-            </div>
-          )}
-        </div>
-      );
+      return <PublishedAlbumWidget props={p} wrapStyle={wrapStyle} />;
     }
 
     if (wt === "formbuilder") {

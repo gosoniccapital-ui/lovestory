@@ -74,6 +74,10 @@ export interface WidgetProps {
     rsvpShowPhone?: boolean;
     phoneNumber?: string;
     albumImages?: string;
+    albumTitle?: string;
+    albumLayout?: "grid" | "carousel" | "parallax_3d" | string;
+    layout?: string;
+    title?: string;
     guestNameLabel?: string;
     monogram?: string;
     waxColor?: string;

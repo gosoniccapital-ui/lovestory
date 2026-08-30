@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { trpc } from "@/lib/trpc/client";
 
 const STATUS_CONFIG = {
@@ -11,6 +11,14 @@ const STATUS_CONFIG = {
 } as const;
 
 type GuestStatus = keyof typeof STATUS_CONFIG;
+
+export interface SeatingTable {
+  id: string;
+  name: string;
+  capacity: number;
+  zone: string;
+  guestIds: string[];
+}
 
 interface Project {
   id: string;
@@ -27,6 +35,7 @@ export function GuestList({ projects, appUrl }: GuestListProps) {
   const [selectedProjectId, setSelectedProjectId] = useState(
     projects[0]?.id || "",
   );
+  const [activeTab, setActiveTab] = useState<"guests" | "seating">("guests");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -37,6 +46,83 @@ export function GuestList({ projects, appUrl }: GuestListProps) {
   const [batchText, setBatchText] = useState("");
   const [batchImporting, setBatchImporting] = useState(false);
   const [bulkCopied, setBulkCopied] = useState(false);
+
+  // Sprint 55: Guest Seating Management State
+  const [tables, setTables] = useState<SeatingTable[]>([]);
+  const [newTableName, setNewTableName] = useState("");
+  const [newTableCapacity, setNewTableCapacity] = useState(10);
+  const [newTableZone, setNewTableZone] = useState("Khu vực trung tâm");
+  const [showAddTable, setShowAddTable] = useState(false);
+
+  useEffect(() => {
+    if (!selectedProjectId) return;
+    try {
+      const saved = localStorage.getItem(`lovestory_tables_${selectedProjectId}`);
+      if (saved) {
+        setTables(JSON.parse(saved));
+      } else {
+        setTables([
+          { id: "tbl-1", name: "Bàn 1 - VIP Gia Đình", capacity: 10, zone: "Khu vực sân khấu", guestIds: [] },
+          { id: "tbl-2", name: "Bàn 2 - Bạn Thân Dâu Rể", capacity: 10, zone: "Khu vực trung tâm", guestIds: [] },
+          { id: "tbl-3", name: "Bàn 3 - Đồng Nghiệp Cty", capacity: 10, zone: "Khu vực trung tâm", guestIds: [] },
+        ]);
+      }
+    } catch {
+      // fallback
+    }
+  }, [selectedProjectId]);
+
+  const saveTables = (updatedTables: SeatingTable[]) => {
+    setTables(updatedTables);
+    if (selectedProjectId) {
+      try {
+        localStorage.setItem(`lovestory_tables_${selectedProjectId}`, JSON.stringify(updatedTables));
+      } catch {
+        // fallback
+      }
+    }
+  };
+
+  const handleAddTable = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTableName.trim()) return;
+    const newTbl: SeatingTable = {
+      id: `tbl-${Date.now()}`,
+      name: newTableName.trim(),
+      capacity: newTableCapacity || 10,
+      zone: newTableZone || "Khu vực trung tâm",
+      guestIds: [],
+    };
+    saveTables([...tables, newTbl]);
+    setNewTableName("");
+    setShowAddTable(false);
+  };
+
+  const handleDeleteTable = (tblId: string) => {
+    saveTables(tables.filter((t) => t.id !== tblId));
+  };
+
+  const handleAssignGuest = (tblId: string, guestId: string) => {
+    const updated = tables.map((t) => {
+      // Remove from old table first if present
+      const cleanGuestIds = t.guestIds.filter((id) => id !== guestId);
+      if (t.id === tblId) {
+        return { ...t, guestIds: [...cleanGuestIds, guestId] };
+      }
+      return { ...t, guestIds: cleanGuestIds };
+    });
+    saveTables(updated);
+  };
+
+  const handleUnassignGuest = (tblId: string, guestId: string) => {
+    const updated = tables.map((t) => {
+      if (t.id === tblId) {
+        return { ...t, guestIds: t.guestIds.filter((id) => id !== guestId) };
+      }
+      return t;
+    });
+    saveTables(updated);
+  };
 
   const selectedProject = projects.find((p) => p.id === selectedProjectId);
 
@@ -215,16 +301,412 @@ export function GuestList({ projects, appUrl }: GuestListProps) {
         </div>
       )}
 
-      {/* Add Guest Form */}
+      {/* Sprint 55: Tab Switcher (Guest List vs Seating Chart) */}
       <div
         style={{
-          background: "#fff",
-          borderRadius: 16,
-          padding: 24,
-          border: "1px solid #e8e8ec",
-          marginBottom: 24,
+          display: "flex",
+          gap: 12,
+          marginBottom: 20,
+          borderBottom: "1px solid #e5e7eb",
+          paddingBottom: 12,
         }}
       >
+        <button
+          onClick={() => setActiveTab("guests")}
+          style={{
+            padding: "10px 20px",
+            borderRadius: 10,
+            border: "none",
+            background: activeTab === "guests" ? "linear-gradient(135deg, #ff6b9d, #c084fc)" : "#f3f4f6",
+            color: activeTab === "guests" ? "#ffffff" : "#4b5563",
+            fontSize: 13,
+            fontWeight: 700,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            boxShadow: activeTab === "guests" ? "0 4px 12px rgba(255,107,157,0.25)" : "none",
+            transition: "all 0.2s ease",
+          }}
+        >
+          <span>👥</span> Danh sách khách mời ({guests.length})
+        </button>
+        <button
+          onClick={() => setActiveTab("seating")}
+          style={{
+            padding: "10px 20px",
+            borderRadius: 10,
+            border: "none",
+            background: activeTab === "seating" ? "linear-gradient(135deg, #e11d48, #be123c)" : "#f3f4f6",
+            color: activeTab === "seating" ? "#ffffff" : "#4b5563",
+            fontSize: 13,
+            fontWeight: 700,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            boxShadow: activeTab === "seating" ? "0 4px 12px rgba(225,29,72,0.25)" : "none",
+            transition: "all 0.2s ease",
+          }}
+        >
+          <span>🍽️</span> Sơ đồ bàn tiệc & Chỗ ngồi ({tables.length} bàn)
+        </button>
+      </div>
+
+      {/* ═══════ SEATING CHART VIEW (Sprint 55) ═══════ */}
+      {activeTab === "seating" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 20, marginBottom: 28 }}>
+          {/* Seating Stats Summary */}
+          {(() => {
+            const totalCapacity = tables.reduce((acc, t) => acc + t.capacity, 0);
+            const totalSeated = tables.reduce((acc, t) => acc + t.guestIds.length, 0);
+            const unassignedGuests = guests.filter((g: { id: string }) => !tables.some((t) => t.guestIds.includes(g.id)));
+
+            return (
+              <>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12 }}>
+                  <div style={{ background: "#fff", borderRadius: 14, padding: 16, border: "1px solid #e8e8ec" }}>
+                    <div style={{ fontSize: 12, color: "#6b7280", fontWeight: 600 }}>Tổng số bàn tiệc</div>
+                    <div style={{ fontSize: 26, fontWeight: 800, color: "#1f2937", marginTop: 4 }}>{tables.length} bàn</div>
+                  </div>
+                  <div style={{ background: "#fff", borderRadius: 14, padding: 16, border: "1px solid rgba(16,185,129,0.3)" }}>
+                    <div style={{ fontSize: 12, color: "#059669", fontWeight: 700 }}>Chỗ đã xếp</div>
+                    <div style={{ fontSize: 26, fontWeight: 800, color: "#059669", marginTop: 4 }}>
+                      {totalSeated} / {totalCapacity} ghế
+                    </div>
+                  </div>
+                  <div style={{ background: "#fff", borderRadius: 14, padding: 16, border: "1px solid #e8e8ec" }}>
+                    <div style={{ fontSize: 12, color: "#d97706", fontWeight: 600 }}>Chưa xếp bàn</div>
+                    <div style={{ fontSize: 26, fontWeight: 800, color: "#d97706", marginTop: 4 }}>
+                      {unassignedGuests.length} khách
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <button
+                      onClick={() => setShowAddTable(!showAddTable)}
+                      style={{
+                        width: "100%",
+                        padding: "14px 20px",
+                        borderRadius: 12,
+                        border: "none",
+                        background: "linear-gradient(135deg, #e11d48, #be123c)",
+                        color: "#fff",
+                        fontSize: 13,
+                        fontWeight: 700,
+                        cursor: "pointer",
+                        boxShadow: "0 4px 12px rgba(225,29,72,0.2)",
+                      }}
+                    >
+                      ➕ Thêm bàn tiệc mới
+                    </button>
+                  </div>
+                </div>
+
+                {/* Add Table Form */}
+                {showAddTable && (
+                  <form
+                    onSubmit={handleAddTable}
+                    style={{
+                      background: "#fff",
+                      borderRadius: 16,
+                      padding: 20,
+                      border: "1px solid #fed7aa",
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+                    }}
+                  >
+                    <h4 style={{ fontSize: 14, fontWeight: 700, color: "#9a3412", margin: "0 0 12px" }}>
+                      🪑 Tạo bàn tiệc mới
+                    </h4>
+                    <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1.5fr auto", gap: 12, alignItems: "end" }}>
+                      <div>
+                        <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280", display: "block", marginBottom: 4 }}>
+                          Tên bàn tiệc *
+                        </label>
+                        <input
+                          required
+                          value={newTableName}
+                          onChange={(e) => setNewTableName(e.target.value)}
+                          placeholder="VD: Bàn 4 - Bạn Đại Học"
+                          style={{
+                            width: "100%",
+                            padding: "8px 12px",
+                            borderRadius: 8,
+                            border: "1px solid #cbd5e1",
+                            fontSize: 13,
+                            outline: "none",
+                            boxSizing: "border-box",
+                          }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280", display: "block", marginBottom: 4 }}>
+                          Số ghế
+                        </label>
+                        <select
+                          value={newTableCapacity}
+                          onChange={(e) => setNewTableCapacity(Number(e.target.value))}
+                          style={{
+                            width: "100%",
+                            padding: "8px 12px",
+                            borderRadius: 8,
+                            border: "1px solid #cbd5e1",
+                            fontSize: 13,
+                            background: "#fff",
+                          }}
+                        >
+                          <option value={6}>6 ghế</option>
+                          <option value={8}>8 ghế</option>
+                          <option value={10}>10 ghế (Chuẩn)</option>
+                          <option value={12}>12 ghế (Lớn)</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280", display: "block", marginBottom: 4 }}>
+                          Khu vực
+                        </label>
+                        <select
+                          value={newTableZone}
+                          onChange={(e) => setNewTableZone(e.target.value)}
+                          style={{
+                            width: "100%",
+                            padding: "8px 12px",
+                            borderRadius: 8,
+                            border: "1px solid #cbd5e1",
+                            fontSize: 13,
+                            background: "#fff",
+                          }}
+                        >
+                          <option value="Khu vực sân khấu (VIP)">Khu vực sân khấu (VIP)</option>
+                          <option value="Khu vực trung tâm">Khu vực trung tâm</option>
+                          <option value="Khu vực ban công / Ngoài trời">Khu vực ngoài trời</option>
+                          <option value="Khu vực cửa đón khách">Khu vực cửa đón khách</option>
+                        </select>
+                      </div>
+                      <div style={{ display: "flex", gap: 6 }}>
+                        <button
+                          type="submit"
+                          style={{
+                            padding: "8px 16px",
+                            borderRadius: 8,
+                            border: "none",
+                            background: "#ea580c",
+                            color: "#fff",
+                            fontSize: 13,
+                            fontWeight: 700,
+                            cursor: "pointer",
+                          }}
+                        >
+                          Lưu bàn
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setShowAddTable(false)}
+                          style={{
+                            padding: "8px 12px",
+                            borderRadius: 8,
+                            border: "1px solid #cbd5e1",
+                            background: "#fff",
+                            color: "#64748b",
+                            fontSize: 13,
+                            cursor: "pointer",
+                          }}
+                        >
+                          Hủy
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                )}
+
+                {/* Seating Tables Grid */}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 16 }}>
+                  {tables.map((table) => {
+                    const seatedGuests = guests.filter((g: { id: string }) => table.guestIds.includes(g.id));
+                    const isFull = table.guestIds.length >= table.capacity;
+
+                    return (
+                      <div
+                        key={table.id}
+                        style={{
+                          background: "#fff",
+                          borderRadius: 16,
+                          padding: 18,
+                          border: isFull ? "1px solid #cbd5e1" : "1px solid #e2e8f0",
+                          boxShadow: "0 4px 12px rgba(0,0,0,0.04)",
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 12,
+                        }}
+                      >
+                        {/* Table Header */}
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                          <div>
+                            <h4 style={{ fontSize: 15, fontWeight: 700, color: "#1e293b", margin: 0 }}>
+                              {table.name}
+                            </h4>
+                            <span
+                              style={{
+                                display: "inline-block",
+                                fontSize: 10,
+                                fontWeight: 600,
+                                color: "#64748b",
+                                background: "#f1f5f9",
+                                padding: "2px 8px",
+                                borderRadius: 4,
+                                marginTop: 4,
+                              }}
+                            >
+                              📍 {table.zone}
+                            </span>
+                          </div>
+                          <button
+                            onClick={() => handleDeleteTable(table.id)}
+                            style={{
+                              background: "none",
+                              border: "none",
+                              color: "#94a3b8",
+                              cursor: "pointer",
+                              fontSize: 14,
+                              padding: 4,
+                            }}
+                            title="Xóa bàn tiệc này"
+                          >
+                            🗑️
+                          </button>
+                        </div>
+
+                        {/* Visual Circular Table & Seats count */}
+                        <div
+                          style={{
+                            background: "linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%)",
+                            borderRadius: 12,
+                            padding: "12px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                          }}
+                        >
+                          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                            <div
+                              style={{
+                                width: 44,
+                                height: 44,
+                                borderRadius: "50%",
+                                background: isFull ? "#ef4444" : "#10b981",
+                                color: "#fff",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                fontWeight: 800,
+                                fontSize: 13,
+                                boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+                              }}
+                            >
+                              🍽️
+                            </div>
+                            <div>
+                              <div style={{ fontSize: 12, fontWeight: 700, color: "#334155" }}>
+                                {table.guestIds.length} / {table.capacity} khách
+                              </div>
+                              <div style={{ fontSize: 10, color: "#64748b" }}>
+                                {isFull ? "⚠️ Đã đủ ghế" : `Còn ${table.capacity - table.guestIds.length} ghế trống`}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Quick Add Guest Selector */}
+                          {!isFull && unassignedGuests.length > 0 && (
+                            <select
+                              onChange={(e) => {
+                                if (e.target.value) {
+                                  handleAssignGuest(table.id, e.target.value);
+                                  e.target.value = "";
+                                }
+                              }}
+                              style={{
+                                padding: "4px 8px",
+                                borderRadius: 6,
+                                border: "1px solid #cbd5e1",
+                                fontSize: 11,
+                                background: "#fff",
+                                color: "#1e293b",
+                                maxWidth: 140,
+                              }}
+                              defaultValue=""
+                            >
+                              <option value="" disabled>+ Xếp khách...</option>
+                              {unassignedGuests.map((ug: { id: string; name: string }) => (
+                                <option key={ug.id} value={ug.id}>{ug.name}</option>
+                              ))}
+                            </select>
+                          )}
+                        </div>
+
+                        {/* List of Seated Guests */}
+                        <div style={{ display: "flex", flexDirection: "column", gap: 6, minHeight: 60 }}>
+                          {seatedGuests.length === 0 ? (
+                            <div style={{ textAlign: "center", padding: "16px 0", fontSize: 11, color: "#94a3b8", fontStyle: "italic" }}>
+                              Chưa có khách nào ở bàn này
+                            </div>
+                          ) : (
+                            seatedGuests.map((g: { id: string; name: string; phone?: string | null }) => (
+                              <div
+                                key={g.id}
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "space-between",
+                                  padding: "6px 10px",
+                                  borderRadius: 8,
+                                  background: "#f8fafc",
+                                  border: "1px solid #f1f5f9",
+                                  fontSize: 12,
+                                }}
+                              >
+                                <span style={{ fontWeight: 600, color: "#1e293b" }}>
+                                  👤 {g.name}
+                                </span>
+                                <button
+                                  onClick={() => handleUnassignGuest(table.id, g.id)}
+                                  style={{
+                                    background: "none",
+                                    border: "none",
+                                    color: "#ef4444",
+                                    fontSize: 11,
+                                    cursor: "pointer",
+                                    padding: "2px 4px",
+                                  }}
+                                  title="Gỡ khỏi bàn"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            );
+          })()}
+        </div>
+      )}
+
+      {/* ═══════ GUEST LIST VIEW (Sprint 43) ═══════ */}
+      {activeTab === "guests" && (
+        <>
+          {/* Add Guest Form */}
+          <div
+            style={{
+              background: "#fff",
+              borderRadius: 16,
+              padding: 24,
+              border: "1px solid #e8e8ec",
+              marginBottom: 24,
+            }}
+          >
         <div
           style={{
             display: "flex",
@@ -729,6 +1211,8 @@ export function GuestList({ projects, appUrl }: GuestListProps) {
           </table>
         </div>
       )}
+    </>
+  )}
 
       {/* ── RSVP & Wishes Section ── */}
       <RsvpWishesSection projectId={selectedProjectId} />

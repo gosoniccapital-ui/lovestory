@@ -1134,6 +1134,18 @@ export function RightPanel({ selectedEl, allElements, dispatch, background, part
                             )}
                             {wp.widgetType === "album" && (
                                 <>
+                                    <Label>Tiêu đề Album</Label>
+                                    <input type="text" placeholder="Khoảnh Khắc Hạnh Phúc" value={wp.title ?? ""} onChange={e => updW({ title: e.target.value })}
+                                        style={{ width: "100%", padding: "7px 10px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 12, outline: "none", marginBottom: 8, boxSizing: "border-box" }} />
+
+                                    <Label>Chế độ hiển thị</Label>
+                                    <select value={wp.layout ?? "grid"} onChange={e => updW({ layout: e.target.value })}
+                                        style={{ width: "100%", padding: "7px 10px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 12, outline: "none", marginBottom: 8, boxSizing: "border-box", background: "#fff" }}>
+                                        <option value="grid">🖼️ Lưới ảnh cổ điển (Grid)</option>
+                                        <option value="carousel">🎠 Storytelling Carousel (Vuốt ngang)</option>
+                                        <option value="parallax_3d">✨ Thẻ nghiêng 3D Parallax</option>
+                                    </select>
+
                                     <Label>Ảnh album (URL, phân tách bằng dấu phẩy)</Label>
                                     <textarea placeholder="https://link1.jpg, https://link2.jpg" value={wp.albumImages ?? ""} onChange={e => updW({ albumImages: e.target.value })}
                                         style={{ width: "100%", padding: "7px 10px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 12, outline: "none", boxSizing: "border-box", minHeight: 60, resize: "vertical" }} />

@@ -148,6 +148,7 @@ export function CanvasRightPanel(props: CanvasRightPanelProps) {
   const isCall = widgetProps?.widgetType === "callbutton";
   const isCalendar = widgetProps?.widgetType === "calendar";
   const isMusic = widgetProps?.widgetType === "music";
+  const isAlbum = widgetProps?.widgetType === "album";
 
   const updateProp = (props: Record<string, unknown>) => {
     dispatch({ type: "UPDATE_PROPS", id: el.id, props });
@@ -1338,6 +1339,106 @@ export function CanvasRightPanel(props: CanvasRightPanelProps) {
                 }}
                 placeholder="https://youtube.com/watch?v=..."
                 style={inputStyle}
+              />
+            </div>
+          </div>
+        </PanelSection>
+      )}
+
+      {/* ── Album Config (Grid, Carousel, 3D Parallax) ── */}
+      {isAlbum && widgetProps && (
+        <PanelSection title="Cài đặt Album ảnh cưới" icon="📸">
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <div>
+              <label style={labelStyle}>Tiêu đề Album</label>
+              <input
+                type="text"
+                value={String(widgetProps.config.title ?? "")}
+                onChange={(e) => {
+                  dispatch({ type: "UPDATE_PROPS", id: el.id, props: { config: { ...widgetProps.config, title: e.target.value } } });
+                  props.triggerAutosave();
+                }}
+                placeholder="Khoảnh Khắc Hạnh Phúc"
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <label style={labelStyle}>Phụ đề / Câu chuyện</label>
+              <input
+                type="text"
+                value={String(widgetProps.config.subtitle ?? "")}
+                onChange={(e) => {
+                  dispatch({ type: "UPDATE_PROPS", id: el.id, props: { config: { ...widgetProps.config, subtitle: e.target.value } } });
+                  props.triggerAutosave();
+                }}
+                placeholder="Câu chuyện tình yêu của chúng mình"
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <label style={labelStyle}>Chế độ hiển thị</label>
+              <select
+                value={String(widgetProps.config.layout ?? "grid")}
+                onChange={(e) => {
+                  dispatch({ type: "SNAPSHOT" });
+                  dispatch({ type: "UPDATE_PROPS", id: el.id, props: { config: { ...widgetProps.config, layout: e.target.value } } });
+                  props.triggerAutosave();
+                }}
+                style={selectStyle}
+              >
+                <option value="grid">🖼️ Lưới ảnh cổ điển (Grid)</option>
+                <option value="carousel">🎠 Storytelling Carousel (Vuốt ngang)</option>
+                <option value="parallax_3d">✨ Thẻ nghiêng 3D Parallax</option>
+              </select>
+            </div>
+            {widgetProps.config.layout !== "carousel" && (
+              <div>
+                <label style={labelStyle}>Số cột</label>
+                <select
+                  value={String(widgetProps.config.columns ?? 2)}
+                  onChange={(e) => {
+                    dispatch({ type: "UPDATE_PROPS", id: el.id, props: { config: { ...widgetProps.config, columns: Number(e.target.value) } } });
+                    props.triggerAutosave();
+                  }}
+                  style={selectStyle}
+                >
+                  <option value="1">1 cột (Ảnh to)</option>
+                  <option value="2">2 cột (Tiêu chuẩn)</option>
+                  <option value="3">3 cột (Masonry gọn)</option>
+                </select>
+              </div>
+            )}
+            <div>
+              <label style={labelStyle}>Danh sách link ảnh (phân cách bằng dấu phẩy)</label>
+              <textarea
+                value={
+                  Array.isArray(widgetProps.config.photos)
+                    ? (widgetProps.config.photos as unknown[])
+                        .map((p) => (typeof p === "string" ? p : (p as { url?: string })?.url || ""))
+                        .join(", ")
+                    : String(widgetProps.config.albumImages ?? "")
+                }
+                onChange={(e) => {
+                  const urls = e.target.value.split(",").map((s) => s.trim()).filter(Boolean);
+                  dispatch({
+                    type: "UPDATE_PROPS",
+                    id: el.id,
+                    props: {
+                      config: {
+                        ...widgetProps.config,
+                        photos: urls,
+                        albumImages: e.target.value,
+                      },
+                    },
+                  });
+                  props.triggerAutosave();
+                }}
+                placeholder="https://link-anh-1.jpg, https://link-anh-2.jpg"
+                style={{
+                  ...inputStyle,
+                  minHeight: 70,
+                  resize: "vertical" as const,
+                }}
               />
             </div>
           </div>

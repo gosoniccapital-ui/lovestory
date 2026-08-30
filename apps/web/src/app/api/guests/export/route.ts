@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
   // Build CSV with BOM for Vietnamese text in Excel
   const BOM = "\uFEFF";
   const rows: string[] = [
-    "Loại,Tên khách,Email,Điện thoại,Tham dự,Số người,Lời nhắn,Ngày",
+    "Loại,Tên khách,Email,Điện thoại,Tham dự,Số người,Bàn tiệc,Khẩu phần ăn,Lời nhắn,Ngày đăng ký",
   ];
 
   // RSVP rows
@@ -67,8 +67,19 @@ export async function GET(request: NextRequest) {
     const date = new Date(r.created_at).toLocaleDateString("vi-VN");
     const guestName = escapeCsvCell(r.guest_name || "");
     const note = escapeCsvCell(r.note || "");
+    
+    // Parse dietary preference from note if formatted like [Chay] or dietary field
+    let dietary = "Tiêu chuẩn (Mặn)";
+    if (r.note?.includes("[Chay]") || r.note?.toLowerCase().includes("ăn chay")) {
+      dietary = "Ăn chay";
+    } else if (r.note?.includes("[Hải sản]") || r.note?.toLowerCase().includes("hải sản")) {
+      dietary = "Kiêng hải sản";
+    } else if (r.note?.toLowerCase().includes("trẻ em")) {
+      dietary = "Suất trẻ em";
+    }
+
     rows.push(
-      `RSVP,"${guestName}",,,"${attending}",${count},"${note}",${date}`,
+      `RSVP,"${guestName}",,,"${attending}",${count},"-","${dietary}","${note}",${date}`,
     );
   }
 
@@ -85,7 +96,7 @@ export async function GET(request: NextRequest) {
     const email = escapeCsvCell(g.email || "");
     const phone = escapeCsvCell(g.phone || "");
     rows.push(
-      `Danh sách mời,"${name}","${email}","${phone}","${statusLabel}",,, ${date}`,
+      `Danh sách mời,"${name}","${email}","${phone}","${statusLabel}",1,"-","Tiêu chuẩn (Mặn)","-",${date}`,
     );
   }
 
@@ -94,7 +105,7 @@ export async function GET(request: NextRequest) {
   }
 
   const csv = BOM + rows.join("\n");
-  const filename = `rsvp-${project.slug || projectId}.csv`;
+  const filename = `danh-sach-khach-rsvp-${project.slug || projectId}.csv`;
 
   return new Response(csv, {
     headers: {
