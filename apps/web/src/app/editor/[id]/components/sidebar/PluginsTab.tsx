@@ -83,6 +83,11 @@ const WIDGETS: WidgetDef[] = [
     widgetType: "envelope",
   },
   {
+    label: "⚜️ Con dấu sáp 3D",
+    desc: "Dấu sáp dập nổi Monogram tên dâu rể",
+    widgetType: "waxseal",
+  },
+  {
     label: "🎵 nhạc vinyl",
     desc: "Vĩ đĩa quay + nhạc cười (V-POP, Wedding...)",
     widgetType: "music",

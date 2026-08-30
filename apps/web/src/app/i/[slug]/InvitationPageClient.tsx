@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { CanvasInvitation } from "./CanvasInvitation";
+import { WaxSeal } from "@/components/WaxSeal";
 
 interface InvitationData {
   groomName: string;
@@ -535,24 +536,20 @@ function EnvelopeAnimation({
             transition: "opacity 0.3s ease",
           }}
         >
-          {/* Wax seal */}
+          {/* 3D Embossed Wax Seal */}
           <div
             style={{
-              width: 52,
-              height: 52,
-              borderRadius: "50%",
-              background: "linear-gradient(135deg, #ff6b9d, #c084fc)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 24,
-              boxShadow: "0 4px 16px rgba(255,107,157,0.5)",
-              border: "2px solid rgba(255,255,255,0.6)",
-              transform: hovered ? "rotate(15deg)" : "rotate(0deg)",
-              transition: "transform 0.4s",
+              transform: hovered ? "scale(1.08)" : "scale(1)",
+              transition: "transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)",
             }}
           >
-            💌
+            <WaxSeal
+              monogram={`${(groomName || "K").trim().charAt(0)} & ${(brideName || "T").trim().charAt(0)}`}
+              color="crimson"
+              size={64}
+              interactive
+              pulse={!hovered && !isOpening}
+            />
           </div>
           <p
             style={{
@@ -1645,63 +1642,99 @@ function ParticleCanvas({ effect }: { effect: string }) {
     resize();
     window.addEventListener("resize", resize);
 
-    const EMOJIS: Record<string, string[]> = {
-      petals: ["🌸", "🌺", "✿", "❀"],
-      hearts: ["💕", "❤️", "💗", "💖"],
-      snowflakes: ["❄️", "❅", "❆", "✦"],
-      bokeh: [],
-    };
+    const PETAL_COLORS = ["#f43f5e", "#fb7185", "#fda4af", "#fecdd3", "#e11d48"];
+    const GOLD_COLORS = ["#fef08a", "#fde047", "#eab308", "#ca8a04", "#ffffff"];
 
     interface Particle {
       x: number;
       y: number;
       size: number;
       speed: number;
+      speedX: number;
       opacity: number;
       rotation: number;
       rotSpeed: number;
-      emoji: string;
+      flip: number;
+      flipSpeed: number;
+      color: string;
+      isGold: boolean;
     }
-    const particles: Particle[] = Array.from({ length: 30 }, () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height - canvas.height,
-      size: Math.random() * 16 + 10,
-      speed: Math.random() * 0.8 + 0.3,
-      opacity: Math.random() * 0.6 + 0.2,
-      rotation: Math.random() * 360,
-      rotSpeed: (Math.random() - 0.5) * 2,
-      emoji:
-        effect === "bokeh"
-          ? ""
-          : EMOJIS[effect]?.[Math.floor(Math.random() * 4)] || "🌸",
-    }));
+
+    const isMobile = canvas.width < 640;
+    const count = isMobile ? 22 : 45;
+
+    const particles: Particle[] = Array.from({ length: count }, () => {
+      const isGold = effect === "goldDust" || (effect === "petals" && Math.random() < 0.2);
+      return {
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height - canvas.height,
+        size: isGold ? Math.random() * 3 + 1.5 : Math.random() * 12 + 8,
+        speed: (Math.random() * 1.2 + 0.8),
+        speedX: (Math.random() * 1 - 0.5),
+        opacity: Math.random() * 0.6 + 0.35,
+        rotation: Math.random() * 360,
+        rotSpeed: (Math.random() - 0.5) * 1.5,
+        flip: Math.random() * Math.PI,
+        flipSpeed: Math.random() * 0.03 + 0.015,
+        color: isGold
+          ? GOLD_COLORS[Math.floor(Math.random() * GOLD_COLORS.length)]
+          : PETAL_COLORS[Math.floor(Math.random() * PETAL_COLORS.length)],
+        isGold,
+      };
+    });
 
     let animId: number;
+    let tick = 0;
     function draw() {
       if (!ctx || !canvas) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      tick++;
+
       for (const p of particles) {
+        p.flip += p.flipSpeed;
+        const scaleX = Math.cos(p.flip);
+        const wind = Math.sin(tick * 0.02 + p.y * 0.01) * 0.7;
+
         ctx.save();
         ctx.globalAlpha = p.opacity;
         ctx.translate(p.x, p.y);
         ctx.rotate((p.rotation * Math.PI) / 180);
-        if (effect === "bokeh") {
+        ctx.scale(scaleX, 1);
+
+        if (p.isGold) {
           ctx.beginPath();
-          const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, p.size);
-          grad.addColorStop(0, "rgba(255,200,230,0.8)");
-          grad.addColorStop(1, "rgba(255,200,230,0)");
-          ctx.fillStyle = grad;
           ctx.arc(0, 0, p.size, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.shadowColor = "#fef08a";
+          ctx.shadowBlur = 6;
+          ctx.fill();
+        } else if (effect === "hearts") {
+          ctx.beginPath();
+          const topH = p.size * 0.3;
+          ctx.moveTo(0, topH);
+          ctx.bezierCurveTo(0, 0, -p.size / 2, 0, -p.size / 2, topH);
+          ctx.bezierCurveTo(-p.size / 2, (p.size + topH) / 2, 0, (p.size + topH) / 2, 0, p.size);
+          ctx.bezierCurveTo(0, (p.size + topH) / 2, p.size / 2, (p.size + topH) / 2, p.size / 2, topH);
+          ctx.bezierCurveTo(p.size / 2, 0, 0, 0, 0, topH);
+          ctx.fillStyle = p.color;
           ctx.fill();
         } else {
-          ctx.font = `${p.size}px serif`;
-          ctx.fillText(p.emoji, -p.size / 2, p.size / 2);
+          // Organic curved rose/sakura petal
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.bezierCurveTo(-p.size / 2, -p.size / 2, -p.size / 2, p.size / 2, 0, p.size);
+          ctx.bezierCurveTo(p.size / 2, p.size / 2, p.size / 2, -p.size / 2, 0, 0);
+          ctx.fillStyle = p.color;
+          ctx.shadowColor = p.color;
+          ctx.shadowBlur = 3;
+          ctx.fill();
         }
         ctx.restore();
+
         p.y += p.speed;
-        p.x += Math.sin(p.y / 80) * 0.5;
+        p.x += p.speedX + wind;
         p.rotation += p.rotSpeed;
-        if (p.y > canvas.height + 20) {
+        if (p.y > canvas.height + 20 || p.x < -30 || p.x > canvas.width + 30) {
           p.y = -20;
           p.x = Math.random() * canvas.width;
         }

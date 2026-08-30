@@ -1,11 +1,12 @@
 "use client";
 
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, useState } from "react";
 import type { CanvasElement } from "./useCanvasReducer";
 
 interface SelectionBoxProps {
     element: CanvasElement;
     zoom: number;
+    canvasWidth?: number;
     onMove: (id: string, x: number, y: number) => void;
     onResize: (id: string, x: number, y: number, w: number, h: number) => void;
     onDelete: (id: string) => void;
@@ -16,24 +17,25 @@ interface SelectionBoxProps {
 }
 
 const HANDLES = [
-    { id: "nw", cursor: "nw-resize", top: -5, left: -5 },
-    { id: "n", cursor: "n-resize", top: -5, left: "50%", xOff: -5 },
-    { id: "ne", cursor: "ne-resize", top: -5, right: -5 },
-    { id: "e", cursor: "e-resize", top: "50%", right: -5, yOff: -5 },
-    { id: "se", cursor: "se-resize", bottom: -5, right: -5 },
-    { id: "s", cursor: "s-resize", bottom: -5, left: "50%", xOff: -5 },
-    { id: "sw", cursor: "sw-resize", bottom: -5, left: -5 },
-    { id: "w", cursor: "w-resize", top: "50%", left: -5, yOff: -5 },
+    { id: "nw", cursor: "nw-resize", top: -6, left: -6 },
+    { id: "n", cursor: "n-resize", top: -6, left: "50%", xOff: -6 },
+    { id: "ne", cursor: "ne-resize", top: -6, right: -6 },
+    { id: "e", cursor: "e-resize", top: "50%", right: -6, yOff: -6 },
+    { id: "se", cursor: "se-resize", bottom: -6, right: -6 },
+    { id: "s", cursor: "s-resize", bottom: -6, left: "50%", xOff: -6 },
+    { id: "sw", cursor: "sw-resize", bottom: -6, left: -6 },
+    { id: "w", cursor: "w-resize", top: "50%", left: -6, yOff: -6 },
 ];
 
 export function SelectionBox({
-    element, zoom, onMove, onResize, onDelete, onDuplicate, onBringForward, onSendBackward, onDoubleClick
+    element, zoom, canvasWidth = 390, onMove, onResize, onDelete, onDuplicate, onBringForward, onSendBackward, onDoubleClick
 }: SelectionBoxProps) {
 
     const scale = zoom / 100;
     const isDragging = useRef(false);
     const dragStart = useRef({ mouseX: 0, mouseY: 0, elX: 0, elY: 0 });
     const resizeRef = useRef({ handle: "", startX: 0, startY: 0, origX: 0, origY: 0, origW: 0, origH: 0 });
+    const [isSnappedCenter, setIsSnappedCenter] = useState(false);
 
     const handleMovePointerDown = useCallback((e: React.PointerEvent) => {
         if ((e.target as HTMLElement).dataset.handle) return;
@@ -47,18 +49,30 @@ export function SelectionBox({
             if (!isDragging.current) return;
             const dx = (ev.clientX - dragStart.current.mouseX) / scale;
             const dy = (ev.clientY - dragStart.current.mouseY) / scale;
-            const newX = Math.max(0, dragStart.current.elX + dx);
+            let newX = Math.max(0, dragStart.current.elX + dx);
             const newY = Math.max(0, dragStart.current.elY + dy);
+
+            // Magnetic snap to canvas center (195px for 390px canvas)
+            const elCenter = newX + element.width / 2;
+            const targetCenter = canvasWidth / 2;
+            if (Math.abs(elCenter - targetCenter) < 6) {
+                newX = targetCenter - element.width / 2;
+                setIsSnappedCenter(true);
+            } else {
+                setIsSnappedCenter(false);
+            }
+
             onMove(element.id, newX, newY);
         };
         const onUp = () => {
             isDragging.current = false;
+            setIsSnappedCenter(false);
             window.removeEventListener("pointermove", onMove_);
             window.removeEventListener("pointerup", onUp);
         };
         window.addEventListener("pointermove", onMove_);
         window.addEventListener("pointerup", onUp);
-    }, [element.id, element.x, element.y, onMove, scale]);
+    }, [element.id, element.x, element.y, element.width, canvasWidth, onMove, scale]);
 
     const handleResizePointerDown = useCallback((e: React.PointerEvent, handleId: string) => {
         e.stopPropagation();
@@ -98,14 +112,30 @@ export function SelectionBox({
                 top: element.y * scale,
                 width: element.width * scale,
                 height: element.height * scale,
-                border: "2px solid #3b82f6",
+                border: isSnappedCenter ? "2px solid #ec4899" : "2px solid #3b82f6",
                 cursor: "move",
                 zIndex: element.zIndex * 10 + 999,
                 userSelect: "none",
                 touchAction: "none",
             }}
         >
-            {/* Resize handles */}
+            {/* Snap Guideline Indicator */}
+            {isSnappedCenter && (
+                <div
+                    style={{
+                        position: "absolute",
+                        top: -999,
+                        bottom: -999,
+                        left: "50%",
+                        width: 1,
+                        background: "#ec4899",
+                        pointerEvents: "none",
+                        zIndex: 99999,
+                    }}
+                />
+            )}
+
+            {/* Resize handles with expanded touch hitboxes for mobile */}
             {HANDLES.map(h => (
                 <div
                     key={h.id}
@@ -113,10 +143,10 @@ export function SelectionBox({
                     onPointerDown={(e) => handleResizePointerDown(e, h.id)}
                     style={{
                         position: "absolute",
-                        width: 10, height: 10,
+                        width: 12, height: 12,
                         background: "#fff",
                         border: "2px solid #3b82f6",
-                        borderRadius: 2,
+                        borderRadius: 3,
                         cursor: h.cursor,
                         top: h.top !== undefined ? h.top : undefined,
                         bottom: (h as Record<string, unknown>).bottom !== undefined ? (h as Record<string, unknown>).bottom as number : undefined,
@@ -125,23 +155,39 @@ export function SelectionBox({
                         transform: `translate(${(h as Record<string, unknown>).xOff ? (h as Record<string, unknown>).xOff : 0}px, ${(h as Record<string, unknown>).yOff ? (h as Record<string, unknown>).yOff : 0}px)`,
                         zIndex: 9999,
                         touchAction: "none",
+                        boxShadow: "0 1px 4px rgba(0,0,0,0.2)",
                     }}
-                />
+                >
+                    {/* Mobile Touch Invisible Expander (32x32px hit area) */}
+                    <div
+                        data-handle={h.id}
+                        style={{
+                            position: "absolute",
+                            top: -10,
+                            left: -10,
+                            width: 32,
+                            height: 32,
+                            pointerEvents: "auto",
+                        }}
+                    />
+                </div>
             ))}
 
             {/* Floating toolbar */}
             <div style={{
                 position: "absolute",
-                top: -38,
+                top: -42,
                 left: "50%",
                 transform: "translateX(-50%)",
-                background: "#1f2937",
-                borderRadius: 8,
-                padding: "4px 6px",
+                background: "rgba(31, 41, 55, 0.95)",
+                backdropFilter: "blur(4px)",
+                borderRadius: 10,
+                padding: "4px 8px",
                 display: "flex",
-                gap: 2,
+                gap: 4,
                 whiteSpace: "nowrap",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+                boxShadow: "0 6px 16px rgba(0,0,0,0.25)",
+                border: "1px solid rgba(255,255,255,0.1)",
                 zIndex: 9999,
             }}>
                 {[
@@ -155,12 +201,13 @@ export function SelectionBox({
                         title={btn.title}
                         onPointerDown={(e) => { e.stopPropagation(); btn.onClick(); }}
                         style={{
-                            width: 26, height: 26,
-                            background: btn.label === "✕" ? "#ef4444" : "rgba(255,255,255,0.1)",
+                            width: 28, height: 28,
+                            background: btn.label === "✕" ? "#ef4444" : "rgba(255,255,255,0.12)",
                             border: "none", borderRadius: 6,
                             color: "#fff", fontSize: 12,
                             cursor: "pointer",
                             display: "flex", alignItems: "center", justifyContent: "center",
+                            transition: "background 0.1s",
                         }}
                     >
                         {btn.label}
@@ -170,3 +217,4 @@ export function SelectionBox({
         </div>
     );
 }
+

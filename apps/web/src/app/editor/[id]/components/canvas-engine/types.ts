@@ -73,7 +73,8 @@ export interface WidgetProps {
     | "callbutton"
     | "guestname"
     | "formbuilder"
-    | "music";
+    | "music"
+    | "waxseal";
   config: Record<string, unknown>;
 }
 

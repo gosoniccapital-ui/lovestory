@@ -1146,6 +1146,58 @@ export function RightPanel({ selectedEl, allElements, dispatch, background, part
                                         style={{ width: "100%", padding: "7px 10px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 12, outline: "none", boxSizing: "border-box" }} />
                                 </>
                             )}
+                            {wp.widgetType === "waxseal" && (
+                                <>
+                                    <Label>Chữ lồng Monogram (hoặc tên viết tắt)</Label>
+                                    <input type="text" placeholder="K & T" value={wp.monogram ?? ""} onChange={e => updW({ monogram: e.target.value })}
+                                        style={{ width: "100%", padding: "7px 10px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 12, outline: "none", boxSizing: "border-box", marginBottom: 8 }} />
+                                    
+                                    <Label>Màu sắc chất liệu sáp</Label>
+                                    <select value={wp.waxColor ?? "crimson"} onChange={e => updW({ waxColor: e.target.value })}
+                                        style={{ width: "100%", padding: "7px 10px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 12, outline: "none", boxSizing: "border-box", marginBottom: 8 }}>
+                                        <option value="crimson">🔴 Royal Crimson Wax (Đỏ huyết dụ)</option>
+                                        <option value="gold">🟡 Champagne Gold Foil (Vàng đồng ánh kim)</option>
+                                        <option value="bronze">🟤 Antique Bronze (Đồng cổ điển)</option>
+                                        <option value="emerald">🟢 Emerald Velvet (Xanh ngọc bích)</option>
+                                        <option value="pearl">⚪ Pearl Ivory (Trắng ngọc trai)</option>
+                                        <option value="roseGold">🌸 Rose Gold (Hồng ánh kim)</option>
+                                    </select>
+
+                                    <Label>Biểu tượng dập nổi</Label>
+                                    <select value={wp.waxIcon ?? "none"} onChange={e => updW({ waxIcon: e.target.value })}
+                                        style={{ width: "100%", padding: "7px 10px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 12, outline: "none", boxSizing: "border-box" }}>
+                                        <option value="none">Chữ viết tắt Monogram</option>
+                                        <option value="heart">❤️ Trái tim tình yêu</option>
+                                        <option value="rose">🌹 Hoa hồng quý phái</option>
+                                        <option value="rings">💍 Nhẫn cưới uyên ương</option>
+                                        <option value="olive">🌿 Nhánh ô liu hoà bình</option>
+                                        <option value="crown">👑 Vương miện hoàng gia</option>
+                                        <option value="floral">🌸 Hoa trang trí</option>
+                                    </select>
+                                </>
+                            )}
+                            {wp.widgetType === "envelope" && (
+                                <>
+                                    <Label>Tên Chú rể</Label>
+                                    <input type="text" placeholder="Hoàng Nam" value={wp.groomName ?? ""} onChange={e => updW({ groomName: e.target.value })}
+                                        style={{ width: "100%", padding: "7px 10px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 12, outline: "none", boxSizing: "border-box", marginBottom: 8 }} />
+                                    
+                                    <Label>Tên Cô dâu</Label>
+                                    <input type="text" placeholder="Mai Linh" value={wp.brideName ?? ""} onChange={e => updW({ brideName: e.target.value })}
+                                        style={{ width: "100%", padding: "7px 10px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 12, outline: "none", boxSizing: "border-box", marginBottom: 8 }} />
+                                    
+                                    <Label>Màu con dấu sáp</Label>
+                                    <select value={wp.waxColor ?? "gold"} onChange={e => updW({ waxColor: e.target.value })}
+                                        style={{ width: "100%", padding: "7px 10px", border: "1px solid #e5e7eb", borderRadius: 7, fontSize: 12, outline: "none", boxSizing: "border-box" }}>
+                                        <option value="gold">🟡 Champagne Gold Foil</option>
+                                        <option value="crimson">🔴 Royal Crimson Wax</option>
+                                        <option value="bronze">🟤 Antique Bronze</option>
+                                        <option value="emerald">🟢 Emerald Velvet</option>
+                                        <option value="pearl">⚪ Pearl Ivory</option>
+                                        <option value="roseGold">🌸 Rose Gold</option>
+                                    </select>
+                                </>
+                            )}
                         </AccordionSection>
 
                         {/* Cơ bản */}

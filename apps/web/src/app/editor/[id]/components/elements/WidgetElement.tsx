@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { CanvasElement } from "../useCanvasReducer";
+import { WaxSeal } from "@/components/WaxSeal";
 
 interface WidgetElementProps {
     element: CanvasElement;
@@ -357,6 +358,39 @@ function GuestNameWidget({ props, scale }: { props: CanvasElement["props"]; scal
     );
 }
 
+// ── 3D WAX SEAL MONOGRAM WIDGET (Sprint 54 — CineLove Parity) ──
+function WaxSealWidget({ props, scale }: { props: CanvasElement["props"]; scale: number }) {
+    const raw = props as Record<string, unknown>;
+    const cfg = (raw.config as Record<string, unknown>) ?? {};
+    const monogram = String(cfg.monogram ?? raw.monogram ?? raw.label ?? "K & T");
+    const color = (cfg.waxColor ?? raw.waxColor ?? "crimson") as string;
+    const icon = (cfg.waxIcon ?? raw.waxIcon ?? "none") as any;
+    return (
+        <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <WaxSeal monogram={monogram} color={color} icon={icon} size={Math.min(120, 80 * scale)} interactive={false} />
+        </div>
+    );
+}
+
+// ── 3D ENVELOPE WIDGET (Sprint 54 — CineLove Parity) ──
+function EnvelopeWidget({ props, scale }: { props: CanvasElement["props"]; scale: number }) {
+    const raw = props as Record<string, unknown>;
+    const cfg = (raw.config as Record<string, unknown>) ?? {};
+    const groomName = String(cfg.groomName ?? raw.groomName ?? "Hoàng Nam");
+    const brideName = String(cfg.brideName ?? raw.brideName ?? "Mai Linh");
+    const waxColor = (cfg.waxColor ?? raw.waxColor ?? "gold") as string;
+    const envelopeColor = String(cfg.envelopeColor ?? raw.envelopeColor ?? "#fdf8f0");
+    return (
+        <div style={{ width: "100%", height: "100%", borderRadius: 12 * scale, background: envelopeColor, border: "1px solid rgba(0,0,0,0.1)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", position: "relative", overflow: "hidden", boxShadow: "0 4px 16px rgba(0,0,0,0.08)" }}>
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "45%", background: "linear-gradient(0deg, rgba(0,0,0,0.05) 0%, transparent 100%)", clipPath: "polygon(0 0, 100% 0, 50% 100%)" }} />
+            <div style={{ zIndex: 2, marginBottom: 4 * scale }}>
+                <WaxSeal monogram={`${groomName.charAt(0)} & ${brideName.charAt(0)}`} color={waxColor} size={48 * scale} interactive={false} />
+            </div>
+            <p style={{ margin: 0, fontSize: 10 * scale, fontWeight: 700, color: "#451a03", fontFamily: "'Great Vibes', cursive", zIndex: 2 }}>{groomName} & {brideName}</p>
+        </div>
+    );
+}
+
 // ── MAIN WIDGET ELEMENT ──
 export function WidgetElement({ element, zoom, isSelected, onSelect }: WidgetElementProps) {
     const scale = zoom / 100;
@@ -375,6 +409,8 @@ export function WidgetElement({ element, zoom, isSelected, onSelect }: WidgetEle
             {wt === "album" && <AlbumWidget props={props} scale={scale} />}
             {wt === "guestname" && <GuestNameWidget props={props} scale={scale} />}
             {wt === "music" && <VinylMusicWidget props={props} scale={scale} />}
+            {wt === "waxseal" && <WaxSealWidget props={props} scale={scale} />}
+            {wt === "envelope" && <EnvelopeWidget props={props} scale={scale} />}
         </div>
     );
 }

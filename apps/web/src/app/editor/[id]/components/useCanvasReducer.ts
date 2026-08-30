@@ -51,7 +51,7 @@ export interface ImageProps {
 }
 
 export interface WidgetProps {
-    widgetType: "calendar" | "countdown" | "map" | "qr" | "gift" | "rsvp" | "youtube" | "call" | "album" | "guestname";
+    widgetType: "calendar" | "countdown" | "map" | "qr" | "gift" | "rsvp" | "youtube" | "call" | "album" | "guestname" | "waxseal" | "envelope" | "music";
     label: string;
     targetDate?: string;
     lunarDate?: string;
@@ -75,6 +75,12 @@ export interface WidgetProps {
     phoneNumber?: string;
     albumImages?: string;
     guestNameLabel?: string;
+    monogram?: string;
+    waxColor?: string;
+    waxIcon?: string;
+    groomName?: string;
+    brideName?: string;
+    envelopeColor?: string;
 }
 
 export interface ElementAnimation {
