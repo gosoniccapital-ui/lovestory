@@ -1,0 +1,36 @@
+apps/web/src/app/editor/[id]/components/FontPickerModal.tsx
+  h_709d285d7429c5 4,6-88,100-101,110-111,121-122,127-128,132-133,159-160,176-177,179-189,200-201,205,213-215,217-218,222,228,233,236-267,275-277,280,284-339,341-342,344-345,347,349-359,363,369,372,384,402-439,442-445,448-459,461-467,470-494,497-499,503-506,511
+apps/web/src/app/editor/[id]/components/RightPanel.tsx
+  h_709d285d7429c5 1149-1200
+apps/web/src/app/editor/[id]/components/SelectionBox.tsx
+  h_709d285d7429c5 3,9,20-27,31,38,52,54-64,69,75,115,122-138,146,149,158,160-173,179,182-185,187,189-190,204-205,210,220
+apps/web/src/app/editor/[id]/components/canvas-engine/types.ts
+  h_709d285d7429c5 76-77
+apps/web/src/app/editor/[id]/components/elements/WidgetElement.tsx
+  h_709d285d7429c5 5,361-393,412-413
+apps/web/src/app/editor/[id]/components/sidebar/PluginsTab.tsx
+  h_709d285d7429c5 85-89
+apps/web/src/app/editor/[id]/components/useCanvasReducer.ts
+  h_709d285d7429c5 54,78-83
+apps/web/src/app/i/[slug]/InvitationPageClient.tsx
+  h_709d285d7429c5 6,539,542-543,546-552,1645-1646,1653,1657-1660,1662-1684,1687,1691-1692,1694-1697,1702-1704,1707-1719,1722-1730,1733,1735,1737
+apps/web/src/components/FallingPetalsCanvas.tsx
+  h_709d285d7429c5 1-243
+apps/web/src/components/InteractiveEnvelope3D.tsx
+  h_709d285d7429c5 1-169
+apps/web/src/components/WaxSeal.tsx
+  h_709d285d7429c5 1-275
+docs/sprint54-visual-canvas-cinelove-parity.md
+  h_709d285d7429c5 1-99
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "d800a346c06624a8d320c983fc2f297268be0ea1",
+  "prompts": {},
+  "humans": {
+    "h_709d285d7429c5": {
+      "author": "jokerlin135 <jokerlin135@gmail.com>"
+    }
+  }
+}
