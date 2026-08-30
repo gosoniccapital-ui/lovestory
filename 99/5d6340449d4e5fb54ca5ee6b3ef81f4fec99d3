@@ -1,0 +1,34 @@
+CONTEXT.md
+  h_c24fe9ea47d35f 111-129,144-146,148,156-160
+apps/web/src/app/api/guests/export/route.ts
+  h_c24fe9ea47d35f 60,70-80,82,99,108
+apps/web/src/app/dashboard/guests/_components/GuestList.tsx
+  h_c24fe9ea47d35f 3,15-22,38,50-126,304,307-311,314-709,1214-1215
+apps/web/src/app/dashboard/rsvp/page.tsx
+  h_c24fe9ea47d35f 4-9,12,22,26-30,37-39,48-51,67-70,89,93,112-173,176-178,184-186,188-190,192,204,206-220,224,226-241,243-244,247-248,250,252,254,256,260-297,299-301,304-316,318-324,327,329-381,386-394,396-457
+apps/web/src/app/editor/[id]/components/RightPanel.tsx
+  h_c24fe9ea47d35f 1137-1148
+apps/web/src/app/editor/[id]/components/canvas-engine/CanvasRightPanel.tsx
+  h_c24fe9ea47d35f 151,1348-1447
+apps/web/src/app/editor/[id]/components/canvas-engine/WidgetRenderer.tsx
+  h_c24fe9ea47d35f 374,377-382,388-389,392-411,415,417,421-430,438,441-443,448-453,455-456,458-470,475,477-504,508-512,516,518,521-524,527-541,543-605,607-610,612-613,615-647,649-664,670,674-675,677-678,680-709,711-720,723-752,755-758,761-763,766-768,770,772,774-775,781,792-793,796,799-852,854-1218,1227
+apps/web/src/app/editor/[id]/components/canvas-engine/vietnam-banks.ts
+  h_c24fe9ea47d35f 20-35,46,48-53,57-74
+apps/web/src/app/editor/[id]/components/useCanvasReducer.ts
+  h_c24fe9ea47d35f 77-80
+apps/web/src/app/i/[slug]/CanvasInvitation.tsx
+  h_c24fe9ea47d35f 12,712-1320,1582-1583,1748
+docs/HANDOVER_SESSION_2026_08_30_SPRINT55_COMPLETE.md
+  h_c24fe9ea47d35f 1-89
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "995d6340449d4e5fb54ca5ee6b3ef81f4fec99d3",
+  "prompts": {},
+  "humans": {
+    "h_c24fe9ea47d35f": {
+      "author": "gosoniccapital-ui <gosoniccapital@gmail.com>"
+    }
+  }
+}
