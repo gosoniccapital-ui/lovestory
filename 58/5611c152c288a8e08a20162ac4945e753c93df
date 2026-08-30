@@ -1,0 +1,16 @@
+CONTEXT.md
+  h_c24fe9ea47d35f 86-110,141-145,148
+docs/HANDOVER_SESSION_2026_08_30_SPRINT54_COMPLETE.md
+  h_c24fe9ea47d35f 1-99
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "585611c152c288a8e08a20162ac4945e753c93df",
+  "prompts": {},
+  "humans": {
+    "h_c24fe9ea47d35f": {
+      "author": "gosoniccapital-ui <gosoniccapital@gmail.com>"
+    }
+  }
+}
