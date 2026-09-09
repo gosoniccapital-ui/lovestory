@@ -56,12 +56,23 @@ export default function LoginPage() {
     }
 
     async function handleGoogleLogin() {
-        await supabase.auth.signInWithOAuth({
-            provider: "google",
-            options: {
-                redirectTo: `${window.location.origin}/auth/callback`,
-            },
-        });
+        setLoading(true);
+        setError("");
+        try {
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: "google",
+                options: {
+                    redirectTo: `${window.location.origin}/auth/callback`,
+                },
+            });
+            if (error) {
+                setError(`Đăng nhập Google: ${error.message}`);
+            }
+        } catch (err: any) {
+            setError(err.message || "Không thể kết nối tới Google OAuth");
+        } finally {
+            setLoading(false);
+        }
     }
 
     async function handleForgotPassword(e: React.FormEvent) {
