@@ -46,6 +46,7 @@ export function CheckInScannerApp({ projects }: CheckInScannerAppProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const scanIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
+  const lastScannedRef = useRef<{ code: string; timestamp: number }>({ code: "", timestamp: 0 });
 
   // tRPC Queries & Mutations
   const utils = trpc.useUtils();
@@ -105,6 +106,15 @@ export function CheckInScannerApp({ projects }: CheckInScannerAppProps) {
   const handleScannedCode = useCallback(
     (rawText: string) => {
       if (!rawText) return;
+      const now = Date.now();
+      if (
+        lastScannedRef.current.code === rawText &&
+        now - lastScannedRef.current.timestamp < 2500
+      ) {
+        return; // Debounce duplicate scan
+      }
+      lastScannedRef.current = { code: rawText, timestamp: now };
+
       let targetGuestId = "";
 
       // Case 1: URL with ?guest=UUID

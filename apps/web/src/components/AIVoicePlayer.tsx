@@ -73,6 +73,7 @@ export function AIVoicePlayer({
   const stopAudio = useCallback(() => {
     if (typeof window !== "undefined" && "speechSynthesis" in window) {
       window.speechSynthesis.cancel();
+      window.dispatchEvent(new CustomEvent("lovestory:voice-end"));
     }
     setIsPlaying(false);
   }, []);
@@ -96,9 +97,18 @@ export function AIVoicePlayer({
       utter.lang = "vi-VN";
     }
 
-    utter.onstart = () => setIsPlaying(true);
-    utter.onend = () => setIsPlaying(false);
-    utter.onerror = () => setIsPlaying(false);
+    utter.onstart = () => {
+      setIsPlaying(true);
+      window.dispatchEvent(new CustomEvent("lovestory:voice-start"));
+    };
+    utter.onend = () => {
+      setIsPlaying(false);
+      window.dispatchEvent(new CustomEvent("lovestory:voice-end"));
+    };
+    utter.onerror = () => {
+      setIsPlaying(false);
+      window.dispatchEvent(new CustomEvent("lovestory:voice-end"));
+    };
 
     utteranceRef.current = utter;
     window.speechSynthesis.speak(utter);

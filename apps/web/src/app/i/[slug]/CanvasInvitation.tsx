@@ -3321,6 +3321,28 @@ function fadeAudioIn(
   }
 }
 
+function fadeAudioTo(
+  audio: HTMLAudioElement,
+  targetVolume: number,
+  durationMs = 800,
+) {
+  const stepTime = 50;
+  const totalSteps = Math.max(1, durationMs / stepTime);
+  const currentVol = audio.volume;
+  const diff = targetVolume - currentVol;
+  const stepInc = diff / totalSteps;
+  let step = 0;
+  const interval = setInterval(() => {
+    step++;
+    if (audio.paused || step >= totalSteps) {
+      audio.volume = Math.max(0, Math.min(1, targetVolume));
+      clearInterval(interval);
+      return;
+    }
+    audio.volume = Math.max(0, Math.min(1, audio.volume + stepInc));
+  }, stepTime);
+}
+
 export function CanvasInvitation({
   canvasJson,
   guestName,
@@ -3398,6 +3420,28 @@ export function CanvasInvitation({
       document.removeEventListener("touchstart", handleFirst);
     };
   }, [musicUrl]);
+
+  // Audio Ducking when AI Voice Narration speaks
+  useEffect(() => {
+    const handleVoiceStart = () => {
+      if (audioRef.current && !audioRef.current.paused) {
+        fadeAudioTo(audioRef.current, 0.15, 600);
+      }
+    };
+    const handleVoiceEnd = () => {
+      if (audioRef.current && !audioRef.current.paused) {
+        fadeAudioTo(audioRef.current, 0.85, 1000);
+      }
+    };
+
+    window.addEventListener("lovestory:voice-start", handleVoiceStart);
+    window.addEventListener("lovestory:voice-end", handleVoiceEnd);
+
+    return () => {
+      window.removeEventListener("lovestory:voice-start", handleVoiceStart);
+      window.removeEventListener("lovestory:voice-end", handleVoiceEnd);
+    };
+  }, []);
 
   const handleRSVP = useCallback(async () => {
     if (!rsvpName.trim() || !rsvpAttend) return;
