@@ -179,7 +179,25 @@
 | **2. Workflow ổn chưa?** | 🟢 PASS | Flow từ Templates ➔ Editor ➔ Live Viewer ➔ RSVP CRM ➔ Bàn tiệc ➔ Export Excel hoạt động liền mạch |
 | **3. Thiếu tính năng gì?** | 🟢 COMPLETE | Đã hoàn thành 100% các mục tiêu trọng tâm của Sprint 55 |
 | **4. Rủi ro tiềm ẩn & Giải pháp?** | 🟢 PASS | Đã khử dấu tiếng Việt trên VietQR, UTF-8 BOM trên CSV, và local fallback state cho Seating |
-| **5. Bugs & Test Errors?** | 🟢 0 BUGS | `npm run build` = 61/61 routes OK, 0 TypeScript errors |
+| **5. Bugs & Test Errors?** | 🟢 0 BUGS | `npm run build` = 63/63 routes OK, 53/53 Vitest passed, 0 TypeScript errors |
 
 ---
-*Cập nhật lần cuối: 30/08/2026 bởi Antigravity (VP of Engineering & Full-stack Architect)*
+
+## 🛡️ 6. Báo Cáo Kiểm Tra Hệ Thống & Keep-Alive (09/09/2026)
+1. **Supabase Database (`cgymgtnmuuhxzbjecekp` Singapore `ap-southeast-1`):**
+   - Live Auth Ping (`/auth/v1/settings`): **`200 OK`**
+   - Live REST Gateway (`/rest/v1/`): **`401`** (Secured Gateway)
+   - Live Real Query Table (`/rest/v1/projects` & `/rest/v1/templates`): **`200 OK`**
+   - Trạng thái Compute Engine: 🟢 **`ACTIVE_HEALTHY`**
+2. **Cron-Job.org 24/7/365 Monitor:**
+   - **Job 8347896** (`LoveStory - Supabase PostgreSQL DB Keep-Alive`): Enabled `true`, Schedule mỗi 4h, Last status `1` (OK), Next run liên tục.
+   - **Job 8347897** (`LoveStory - Supabase Auth Service Ping`): Enabled `true`, Schedule mỗi 6h, Last status `1` (OK), Next run liên tục.
+3. **Bảo vệ Dự Phòng Kép (Dual Keep-Alive Protection):**
+   - Đã bổ sung `.github/workflows/supabase-keepalive.yml` (cron `0 8 */4 * *` + `workflow_dispatch`).
+4. **Behavior Model UX Enhancements (`/behavior-model-debugger`):**
+   - **Audio Ducking:** Tự động hạ âm lượng nhạc nền xuống 0.15 khi AI Voice Narration bắt đầu đọc và khôi phục mượt mà về 0.85 khi dừng.
+   - **QR Scanner Debounce:** Thêm cooldown 2500ms tránh spam mutation khi camera quét mã liên tục.
+   - **AudioContext iOS Safari Resume:** Tự động resume Web Audio Context khi bị suspended trên Safari mobile.
+
+---
+*Cập nhật lần cuối: 09/09/2026 bởi Antigravity (VP of Engineering & Full-stack Architect)*
